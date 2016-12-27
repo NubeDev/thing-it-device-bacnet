@@ -18,6 +18,7 @@
     "q": "^1.4.1"
   },
   "devDependencies": {
-    "thing-it-test": "0.0.13"
+    "thing-it-test": "0.0.13",
+    "dgram": "1.0.1"
   }
 }
