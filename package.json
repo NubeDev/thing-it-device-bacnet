@@ -1,0 +1,20 @@
+{
+  "name": "thing-it-device-bacnet",
+  "version": "0.0.1",
+  "description": "[thing-it-node] Device Plugin for BACnet networks.",
+  "authors": "Raimund Backes, Marc Gille",
+  "license": "MIT",
+  "keywords": [
+    "IoT",
+    "thing-it",
+    "BACnet"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marcgille/thing-it-device-bacnet"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+  }
+}
