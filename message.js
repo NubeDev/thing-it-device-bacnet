@@ -39,3 +39,15 @@ Message.prototype.networkMsgType = function () {
         return null;
     return this.networkMsgType;
 }
+
+Message.prototype.sourceAddress = function () {
+    return this.sourceAddress;
+}
+
+Message.prototype.sourceAddress = function () {
+    return this.sourceAddress;
+}
+
+Message.prototype.queue = function () {
+    return this.queue;
+}

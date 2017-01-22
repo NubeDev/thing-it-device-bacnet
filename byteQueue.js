@@ -2,7 +2,7 @@
  * Created by backes on 15.01.17.
  */
 
-'use strict'
+'use strict';
 
 module.exports = ByteQueue;
 
@@ -27,6 +27,16 @@ function ByteQueue(msgBuffer) {
     ByteQueue.prototype.size = function () {
         return this.buffer.byteLength;
     };
+    ByteQueue.prototype.sizeAvailable = function(sz, idx) {
+        var arrayPos = this.pos;
+        if (idx !== undefined) {
+            arrayPos = idx;
+        }
+        if ((this.size - sz) > arrayPos)
+            return true;
+        else
+            return false;
+    }
 
     ByteQueue.prototype.readEnum = function (enumDef) {
         // next byte from queue, queue is actually an Int8-ArrayView on a Buffer
@@ -48,42 +58,81 @@ function ByteQueue(msgBuffer) {
         return 0;
     };
     ByteQueue.prototype.readUInt8 = function () {
+        var sz = 1;
+        if (!this.sizeAvailable(sz))
+            return null;
+
         var data = this.dv.getUint8(pos);
-        this.incPos(1);
+        this.incPos(size);
         return data;
     };
     ByteQueue.prototype.readInt8 = function () {
+        var sz = 1;
+        if (!this.sizeAvailable(sz))
+            return null;
+
         var data = this.dv.getInt8(pos);
         this.incPos(1)
         return data;
     };
     ByteQueue.prototype.readUInt16 = function () {
+        var sz= 2;
+        if (!this.sizeAvailable(sz))
+            return null;
+
         var data = this.dv.getInt16(pos);
-        this.incPos(2);
+        this.incPos(size);
         return data;
     };
     ByteQueue.prototype.readInt16 = function () {
+        var sz = 2;
+        if (!this.sizeAvailable(sz))
+            return null;
+
         var data = this.dv.getInt16(pos);
-        this.incPos(2);
+        this.incPos(size);
         return data;
     };
     ByteQueue.prototype.readUInt32 = function () {
+        var sz = 4;
+        if (!this.sizeAvailable(sz))
+            return null;
+
         var data = this.dv.getUint32(pos);
-        this.incPos(4);
+        this.incPos(size);
         return data;
     };
     ByteQueue.prototype.readInt32 = function () {
+        var sz = 4;
+        if (!this.sizeAvailable(sz))
+            return null;
+
         var data = this.dv.getInt32(pos);
-        this.incPos(4)
+        this.incPos(size);
         return data;
     };
     ByteQueue.prototype.readString = function (){
         // get encoding before reading
         // TODO
     };
-    ByteQueue.prototype.readBytes = function (len){
-        var data = new Uint8Array(this.buffer, this.pos, len);
-        this.incPos(len);
+    ByteQueue.prototype.readBytes = function (len, idx){
+        var arrayPos = this.pos;
+        if (idx !== undefined) {
+            arrayPos = idx;
+            if (!this.sizeAvailable(len, idx))
+                return null;
+        }
+        else {
+            if (!this.sizeAvailable(len))
+                return null;
+        }
+
+        var data = new Uint8Array(this.buffer, arrayPos, len);
+
+        if (idx === undefined) {
+            this.incPos(len);
+        }
         return data;
     };
+
 }

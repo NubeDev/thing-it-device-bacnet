@@ -8,11 +8,15 @@ var Message = require('message');
 
 function BACnetIPNetwork () {
 
+    const localNetworkNumber = 0; // should come from configuration
     const port = "9990"; // should come from configuration
     const multicastaddr = "224.0.0.114"; // should come from configuration
+    const ALL_NETWORKS = 0xFFFF; // should come from configuration
     const BVLC_TYPE = 0x81; // should come from configuration
 
     var server;
+
+    var networkRouters = [];
 
     BACnetIPNetwork.prototype.init = function () {
         server = dgram.createSocket('udp4');
@@ -23,16 +27,16 @@ function BACnetIPNetwork () {
         });
 
         server.on('message', function (msg, rinfo) {
-            var link = rinfo.address + ':' + rinfo.port;
+            var linkService = rinfo.address + ':' + rinfo.port;
 
-            console.log('server got: ' + msg + ' from ' + link);
+            console.log('server got: ' + msg + ' from ' + linkService);
 
             var queue = new ByteQueue(msg);
 
-            var message = this.readNPDU(queue, link);
+            var message = this.readNPDU(queue, linkService);
 
-            if (message.isNetworkMsg()) {
-
+            if (!message.isNetworkMsg()) {
+                this.processADPUData(message);
             }
         });
 
@@ -50,17 +54,17 @@ function BACnetIPNetwork () {
         server.ref();
     };
 
-    BACnetIPNetwork.prototype.readNPDU = function (queue, link) {
+    BACnetIPNetwork.prototype.readNPDU = function (queue, linkService) {
         // Networktype        if (util.isBitSet(control,5)) {
 
-        var networkType = queue.readUInt();
+        var networkType = queue.readUInt8();
 
         if (networkType != BVLC_TYPE) {
             console.log('ERROR: Protocol id is not BACnet/IP (0x81');
             return;
         }
 
-        var msgFunction = queue.readUInt();
+        var msgFunction = queue.readUInt8();
         var length = queue.readInt16();
         if (length != queue.size()) {
             console.log('Length field does not match data: given=' + length + ', expected=' + (queue.size()));
@@ -71,6 +75,7 @@ function BACnetIPNetwork () {
         if (msgFunction == 0x0)
         // we don't do BBMD (BACnet Broadcast Management Device)
             ;
+        /*
         else if (msgFunction == 0x1)
         // Write-Broadcast-Distribution-Table
             ;
@@ -102,15 +107,16 @@ function BACnetIPNetwork () {
         else if (msgFunction == 0x9)
         // Distribute-Broadcast-To-Network
             ;
+        */
         else if (msgFunction == 0xa)
         // Original-Unicast-NPDU
-            msg = this.processNpduData(queue, link);
+            msg = this.processNPDUData(queue, linkService);
         else if (msgFunction == 0xb) {
             // Original-Broadcast-NPDU
-            // If we were BBMD, we would have to forward to foreign devices and other networks
+            // If we were BBMD, we would have to forward to foreign devices and other networks here.
 
             // just process locally
-            msg = this.processNpduData(queue, link);
+            msg = this.processNPDUData(queue, linkService);
         }
         else
             console.log('Unknown BVLC function type: 0x' + util.toHexStr(msgFunction, 2));
@@ -121,12 +127,57 @@ function BACnetIPNetwork () {
     };
 
     // NL Protocol Data Unit (NPDU)
-    BACnetIPNetwork.prototype.processNDPUData = function (queue, link) {
-        var message = this.processNPCI(queue, link);
+    BACnetIPNetwork.prototype.processNPDUData = function (queue, linkService) {
+        var message = this.processNPCI(queue, linkService);
+
+        if (message == null)
+            return null;
+
+        if (message.isNetworkMsg()) {
+            switch (message.networkMsgType()) {
+                case 0x1: // I-Am-Router-To-Network
+                case 0x2: // I-Could-Be-Router-To-Network
+                    // add network-router info to networkRouters array
+                    while (queue.sizeAvailable(2)) {
+                        var network = queue.readUInt16();
+                        networkRouters[network.toString()].add(message.sourceAddress);
+                    }
+                    break;
+                case 0x3: // Reject-Message-To-Network
+                    var reason;
+                    var reasonCode = queue.readUInt8();
+                    if (reasonCode == 0)
+                        reason = "Other error";
+                    else if (reasonCode == 1)
+                        reason = "The router is not directly connected to DNET and cannot find a router to DNET on any "
+                            + "directly connected network using Who-Is-Router-To-Network messages.";
+                    else if (reasonCode == 2)
+                        reason = "The router is busy and unable to accept messages for the specified DNET at the "
+                            + "present time.";
+                    else if (reasonCode == 3)
+                        reason = "It is an unknown network layer message type. The DNET returned in this case is a "
+                            + "local matter.";
+                    else if (reasonCode == 4)
+                        reason = "The message is too long to be routed to this DNET.";
+                    else if (reasonCode == 5)
+                        reason = "The source message was rejected due to a BACnet security error and that error cannot "
+                            + " be forwarded to the source device. See Clause 24.12.1.1 for more details on the "
+                            + "generation of Reject-Message-To-Network messages indicating this reason.";
+                    else if (reasonCode == 6)
+                        reason = "The source message was rejected due to errors in the addressing. The length of the "
+                            + "DADR or SADR was determined to be invalid.";
+                    else
+                        reason = "Unknown reason code";
+                    console.log("Received Reject-Message-To-Network with reason '{}': {}", reasonCode, reason);
+            }
+        }
+
+        return message;
     };
 
     // NL Protocol Control Information (NPCI)
-    BACnetIPNetwork.prototype.processNPCI = function (queue, link) {
+    BACnetIPNetwork.prototype.processNPCI = function (queue, linkService) {
+        // version must be 1
         var version = queue.readUInt();
         var control = queue.readUInt();
 
@@ -159,38 +210,16 @@ function BACnetIPNetwork () {
         if (util.isBitSet(control,7)) {
             // network message
             networkMsgType = queue.readUInt8();
-
-            /******
-            If Bit 7 of the Control octet is 1, then this field is present and has one of the following hex values:
-                X'00': Who-Is-Router-To-Network
-            X'01': I-Am-Router-To-Network
-            X'02': I-Could-Be-Router-To-Network
-            X'03': Reject-Message-To-Network
-            X'04': Router-Busy-To-Network
-            X'05': Router-Available-To-Network
-            X'06': Initialize-Routing-Table
-            X'07': Initialize-Routing-Table-Ack
-            X'08': Establish-Connection-To-Network
-            X'09': Disconnect-Connection-To-Network
-            X'0A': Challenge-Request
-            X'0B': Security-Payload
-            X'0C': Security-Response
-            X'0D': Request-Key-Update
-            X'0E': Update-Key-Set
-            X'0F': Update-Distribution-Key
-            X'10': Request-Master-Key
-            X'11': Set-Master-Key
-            X'12': What-Is-Network-Number
-            X'13': Network-Number-Is
-            X'14' to X'7F': Reserundefinedved for use by ASHRAE
-            X'80' to X'FF': Available for vendor proprietary messages
-             *******/
-
-            if (networkMsgType >= 80)
-                vendorId = queue.readUInt16();
         }
 
-        // TODO: check, if message is either addressed to ourselves or a broadcast that we have to consider!!
+        // Check the destination network number and ignore foreign networks requests
+
+        if (destinationNetwork > 0
+            && destinationNetwork != this.ALL_NETWORKS
+            && localNetworkNumber > 0
+            && localNetworkNumber != destinationNetwork) {
+            return null;
+        }
 
         var msg = new Message(queue,
             sourceNetwork,
@@ -209,6 +238,36 @@ function BACnetIPNetwork () {
 
     BACnetIPNetwork.prototype.processADPUData = function(msg) {
 
+        // Get the first byte. The 4 high-order bits will tell us the type of PDU this is.
+        var type = msg.queue().readBytes(1,0);
+        type = ((type & 0xff) >> 4);
+
+        if (type == 0)
+        // ConfirmedRequest
+            ;
+        if (type == 1)
+            // UnconfirmedRequest
+            ;
+        if (type == 2)
+            // SimpleACK
+            ;
+        if (type == 3)
+            // ComplexACK
+            ;
+        if (type == 4)
+            // SegmentACK
+            ;
+        if (type == 5)
+            // Error
+            ;
+        if (type == 6)
+            // Reject
+            ;
+        if (type == 7)
+            // Abort
+            ;
+        else
+            console.log("Illegal (A)PDU Type: "+type+"!!");
     };
 }
 
