@@ -49,7 +49,7 @@ function APDU (queue) {
         consol.error('should not be called');
     };
 
-    APDU.prototype.needsReply = function () {
+    APDU.prototype.expectsReply = function () {
         return false;
     };
 
@@ -119,10 +119,10 @@ function Abort (queue) {
     };
 
     Abort.prototype.write = function (queue) {
-        var data = getShiftedTypeId(TYPE_ID) | (is_server ? 1 : 0);
+        var data = getShiftedTypeId() | (this.is_server ? 1 : 0);
         queue.push(data);
-        queue.push(originalInvokeId);
-        queue.push(abortReason);
+        queue.push(this.originalInvokeId);
+        queue.push(this.abortReason);
     };
 
     Abort.prototype.expectsReply = function () {
