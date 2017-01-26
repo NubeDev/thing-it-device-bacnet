@@ -34,8 +34,7 @@ exports.createAPDU = function (queue) {
     // Reject
         ;
     if (type == 7)
-    // Abort
-        ;
+        return new Abort(queue);
     else
         console.log("Illegal (A)PDU Type: "+type+"!!");
 
