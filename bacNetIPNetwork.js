@@ -2,8 +2,9 @@
 
 const dgram = require('dgram');
 
-const util = require('bacNetUtil');
-var Message = require('message');
+const util = require('./bacNetUtil.js');
+const apdusvc = require('./apdu.js');
+var Message = require('./message.js');
 
 
 function BACnetIPNetwork () {
@@ -238,36 +239,7 @@ function BACnetIPNetwork () {
 
     BACnetIPNetwork.prototype.processADPUData = function(msg) {
 
-        // Get the first byte. The 4 high-order bits will tell us the type of PDU this is.
-        var type = msg.queue().readBytes(1,0);
-        type = ((type & 0xff) >> 4);
-
-        if (type == 0)
-        // ConfirmedRequest
-            ;
-        if (type == 1)
-            // UnconfirmedRequest
-            ;
-        if (type == 2)
-            // SimpleACK
-            ;
-        if (type == 3)
-            // ComplexACK
-            ;
-        if (type == 4)
-            // SegmentACK
-            ;
-        if (type == 5)
-            // Error
-            ;
-        if (type == 6)
-            // Reject
-            ;
-        if (type == 7)
-            // Abort
-            ;
-        else
-            console.log("Illegal (A)PDU Type: "+type+"!!");
+        var adpu = adpusvc.createADPU(queue);
     };
 }
 

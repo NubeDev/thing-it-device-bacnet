@@ -2,9 +2,9 @@
  * Created by backes on 15.01.17.
  */
 
-'use strict'
+'use strict';
 
-module.exports = {};
+module.exports = Message;
 
 function Message (queue,
                     sourceNetwork,
