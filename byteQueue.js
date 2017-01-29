@@ -134,5 +134,8 @@ function ByteQueue(msgBuffer) {
         }
         return data;
     };
+    ByteQueue.prototype.copyRest = function() {
+        this.buffer.slice(pos);
+    };
 
 }
