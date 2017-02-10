@@ -1203,7 +1203,7 @@ var allEnumerations = {
         2: new EnumValue(206, "206"), // Fits in a LonTalk frame
         3: new EnumValue(480, "480"), // Fits in an ARCNET frame
         4: new EnumValue(1024, "1024"), //
-        5: new EnumValue(1476, "1476") // Fits in an ISO 8802-3 frame
+        5: new EnumValue(1476, "1476") // Fits in an ISO 8802-3 (Ethernet) frame
     },
     MaxSegments: {
         0: new EnumValue(2147483647, "2147483647"), // Integer.MAX_VALUE
@@ -1214,6 +1214,21 @@ var allEnumerations = {
         5: new EnumValue(32, "32"),
         6: new EnumValue(64, "64"),
         7: new EnumValue(2147483647, "2147483647") //
+    },
+    PrimitiveTypes: {
+        0: new EnumValue(0, "NULL"),
+        1: new EnumValue(1, "Boolean"),
+        2: new EnumValue(2, "UnsignedInteger"),
+        3: new EnumValue(3, "SignedInteger"),
+        4: new EnumValue(4, "Real"),
+        5: new EnumValue(5, "Double"),
+        6: new EnumValue(6, "OctetString"),
+        7: new EnumValue(7, "CharacterString"),
+        8: new EnumValue(8, "BitString"),
+        9: new EnumValue(9, "Enumerated"),
+        10: new EnumValue(10, "Date"),
+        11: new EnumValue(11, "Time"),
+        12: new EnumValue(12, "ObjectIdentifier")
     }
 }
 
