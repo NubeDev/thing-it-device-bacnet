@@ -111,6 +111,24 @@ function ByteQueue(msgBuffer) {
         this.incPos(size);
         return data;
     };
+    ByteQueue.prototype.readFloat32 = function () {
+        var sz = 4;
+        if (!this.sizeAvailable(sz))
+            return null;
+
+        var data = this.dv.getFloat32(pos);
+        this.incPos(size);
+        return data;
+    }
+    ByteQueue.prototype.readFloat64 = function () {
+        var sz = 8;
+        if (!this.sizeAvailable(sz))
+            return null;
+
+        var data = this.dv.getFloat64(pos);
+        this.incPos(size);
+        return data;
+    }
     ByteQueue.prototype.readString = function (){
         // get encoding before reading
         // TODO
@@ -137,5 +155,46 @@ function ByteQueue(msgBuffer) {
     ByteQueue.prototype.copyRest = function() {
         this.buffer.slice(pos);
     };
+
+    ByteQueue.prototype.push = function (value) {
+        var sz = 1;
+        this.dv.setInt8(this.pos, value);
+
+        this.incPos(sz);
+    }
+    ByteQueue.prototype.writeInt8 = function (value) {
+        var sz = 1;
+        this.dv.setInt8(this.pos, value);
+
+        this.incPos(sz);
+    }
+    ByteQueue.prototype.writeFloat32 = function (value) {
+        var sz = 4;
+        this.dv.setFloat32(this.pos, value);
+
+        this.incPos(sz);
+    }
+    ByteQueue.prototype.writeFloat64 = function (value) {
+        var sz = 8;
+        this.dv.setFloat64(this.pos, value);
+
+        this.incPos(sz);
+    }
+    ByteQueue.prototype.writeInt32 = function (value) {
+        var sz = 4;
+        this.dv.setInt32(this.pos, value);
+
+        this.incPos(sz);
+    }
+    ByteQueue.prototype.writeBytes = function (uint8bytearray){
+        var bytesItr =  uint8bytearray.entries();
+        var b;
+        while (b = bytesItr.next()) {
+            this.writeInt8(b);
+        }
+
+        this.incPos(uint8bytearray.byteLength);
+    };
 }
+
 

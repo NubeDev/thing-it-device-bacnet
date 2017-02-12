@@ -16,11 +16,11 @@ exports.primitiveTypesService = function (type, queue) {
         return new UnsignedIntegerT(queue);
     if (type == SignedIntegerT.TYPE_ID) // 1
         return new SignedIntegerT(queue);
-/*    if (type == RealT.TYPE_ID) // 1
+    if (type == RealT.TYPE_ID) // 1
         return new RealT(queue);
     if (type == DoubleT.TYPE_ID) // 1
         return new DoubleT(queue);
-    if (type == OctetStringT.TYPE_ID) // 1
+    /*    if (type == OctetStringT.TYPE_ID) // 1
         return new OctetStringT(queue);
     if (type == CharacterStringT.TYPE_ID) // 1
         return new CharacterStringT(queue);
@@ -187,7 +187,7 @@ BooleanT.prototype.constructor = BooleanT;
 BooleanT.prototype.parent = PrimitiveT.prototype;
 function BooleanT (queue) {
     this.queue = queue;
-    this.parent.typeId = allEnumerations.PrimitiveTypes[2].getId();
+    this.parent.typeId = allEnumerations.PrimitiveTypes[1].getId();
     this.value; // boolean
 
     var length = readTag(queue);
@@ -218,7 +218,7 @@ UnsignedIntegerT.prototype.constructor = UnsignedIntegerT;
 UnsignedIntegerT.prototype.parent = PrimitiveT.prototype;
 function UnsignedIntegerT (queue) {
     this.queue = queue;
-    this.parent.typeId = allEnumerations.PrimitiveTypes[3].getId();
+    this.parent.typeId = allEnumerations.PrimitiveTypes[2].getId();
     this.value;
 
     var length = readTag(queue);
@@ -259,7 +259,7 @@ SignedIntegerT.prototype.constructor = SignedIntegerT;
 SignedIntegerT.prototype.parent = PrimitiveT.prototype;
 function SignedIntegerT (queue) {
     this.queue = queue;
-    this.parent.typeId = allEnumerations.PrimitiveTypes[4].getId();
+    this.parent.typeId = allEnumerations.PrimitiveTypes[3].getId();
     this.value;
 
 
@@ -292,5 +292,74 @@ function SignedIntegerT (queue) {
             length = 4;
 
         return length;
+    };
+};
+
+
+RealT.prototype = new PrimitiveT();
+RealT.prototype.constructor = RealT;
+RealT.prototype.parent = PrimitiveT.prototype;
+function RealT (queue) {
+    this.queue = queue;
+    this.parent.typeId = allEnumerations.PrimitiveTypes[4].getId();
+    this.value;
+
+
+    var length = readTag(queue);
+
+    this.value = queue.readFloat32();
+
+    RealT.prototype.writeImpl = function (queue) {
+        queue.writeFloat32(this.value);
+    };
+    RealT.prototype.getLength = function () {
+        return 4;
+    };
+};
+
+
+
+DoubleT.prototype = new PrimitiveT();
+DoubleT.prototype.constructor = DoubleT;
+DoubleT.prototype.parent = PrimitiveT.prototype;
+function DoubleT (queue) {
+    this.queue = queue;
+    this.parent.typeId = allEnumerations.PrimitiveTypes[5].getId();
+    this.value;
+
+
+    var length = readTag(queue);
+
+    this.value = queue.readFloat64();
+
+    DoubleT.prototype.writeImpl = function (queue) {
+        queue.writeFloat64(this.value);
+    };
+    RealT.prototype.getLength = function () {
+        return 8;
+    };
+};
+
+
+
+OctetStringT.prototype = new PrimitiveT();
+OctetStringT.prototype.constructor = OctetStringT;
+OctetStringT.prototype.parent = PrimitiveT.prototype;
+function OctetStringT (queue) {
+    this.queue = queue;
+    this.parent.typeId = allEnumerations.PrimitiveTypes[6].getId();
+    this.value;
+
+
+    var length = readTag(queue);
+
+    // returns typed UInt8Array
+    this.value = queue.readBytes(length);
+
+    OctetStringT.prototype.writeImpl = function (queue) {
+        queue.writeBytes(this.value);
+    };
+    OctetStringT.prototype.getLength = function () {
+        return this.value.byteLength;
     };
 };
