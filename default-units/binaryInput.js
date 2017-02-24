@@ -129,22 +129,14 @@ function BinaryInput() {
     /**
      *
      */
-    BinaryInput.prototype.setStateFromBacNet = function (value) {
-        this.state.presentValue = value.value;
-        this.logDebug("State", this.state);
-        this.publishStateChange();
-    };
-
-    /**
-     *
-     */
     BinaryInput.prototype.stop = function () {
         var deferred = q.defer();
 
-        //if (typeof this.simulationIntervals === 'undefined' || variable === null) {
-        if (this.simulationIntervals) {
-            for (interval in this.simulationIntervals) {
-                clearInterval(this.simulationIntervals[interval]);
+        if (this.isSimulated()) {
+            if (this.simulationIntervals) {
+                for (interval in this.simulationIntervals) {
+                    clearInterval(this.simulationIntervals[interval]);
+                }
             }
         }
 
@@ -164,11 +156,7 @@ function BinaryInput() {
      *
      */
     BinaryInput.prototype.setState = function (state) {
-        if (state.presentValue) {
-            this.on();
-        } else {
-            this.off();
-        }
+
     };
 
     /**
@@ -178,7 +166,7 @@ function BinaryInput() {
         this.logDebug("Called update()");
 
         if (this.isSimulated()) {
-            this.state.presentValue = true;
+
         } else {
 
         }
