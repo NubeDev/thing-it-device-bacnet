@@ -163,6 +163,8 @@ function BinaryInput() {
      *
      */
     BinaryInput.prototype.update = function () {
+        var deferred = q.defer();
+
         this.logDebug("Called update()");
 
         if (this.isSimulated()) {
@@ -173,6 +175,10 @@ function BinaryInput() {
 
         this.logDebug("State", this.state);
         this.publishStateChange();
+
+        deferred.resolve();
+
+        return deferred.promise;
     };
 
 };

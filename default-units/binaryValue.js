@@ -172,6 +172,8 @@ function BinaryValue() {
      *
      */
     BinaryValue.prototype.on = function () {
+        var deferred = q.defer();
+
         this.logDebug("Called on()");
 
         if (this.isSimulated()) {
@@ -183,12 +185,18 @@ function BinaryValue() {
         this.state.presentValue = true;
         this.logDebug("State", this.state);
         this.publishStateChange();
+
+        deferred.resolve();
+
+        return deferred.promise;
     };
 
     /**
      *
      */
     BinaryValue.prototype.off = function () {
+        var deferred = q.defer();
+
         this.logDebug("Called off()");
 
         if (this.isSimulated()) {
@@ -200,16 +208,26 @@ function BinaryValue() {
         this.state.presentValue = false;
         this.logDebug("State", this.state);
         this.publishStateChange();
+
+        deferred.resolve();
+
+        return deferred.promise;
     };
 
     /**
      *
      */
     BinaryValue.prototype.toggle = function () {
+        var deferred = q.defer();
+
         if (this.state.presentValue) {
             this.off();
         } else {
             this.on();
         }
+
+        deferred.resolve();
+
+        return deferred.promise;
     };
 };
