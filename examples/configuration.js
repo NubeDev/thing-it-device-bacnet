@@ -4,7 +4,7 @@ module.exports = {
     "autoDiscoveryDeviceTypes": [],
     "devices": [
         {
-            "plugin": "bacnet/bacNet",
+            "plugin": "bacnet/bacNetDevice",
             "actors": [
                 {
                     "id": "binaryInput1",

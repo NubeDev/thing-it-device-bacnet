@@ -13,6 +13,10 @@ angular.module('testApp', [])
                 presentValue: 77.77,
                 alarmValue: true,
                 outOfService: true
+            },
+            _configuration: {
+                minValue: 0.0,
+                maxValue: 100.0
             }
         };
 

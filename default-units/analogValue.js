@@ -4,7 +4,7 @@ module.exports = {
         label: "BacNet Analog Value",
         role: "actor",
         family: "analogValue",
-        deviceTypes: ["bacnet/bacNet"],
+        deviceTypes: ["bacnet/bacNetDevice"],
         services: [{
             id: "update",
             label: "Update"
@@ -63,6 +63,22 @@ module.exports = {
                     id: "string"
                 },
                 defaultValue: ""
+            },
+            {
+                label: "Minimum Value",
+                id: "minValue",
+                type: {
+                    id: "decimal"
+                },
+                defaultValue: 0
+            },
+            {
+                label: "Maximum Value",
+                id: "maxValue",
+                type: {
+                    id: "decimal"
+                },
+                defaultValue: 100
             }]
     },
     create: function () {
@@ -106,6 +122,11 @@ function AnalogValue() {
                 this.logDebug("alarmValue: " + this.state.alarmValue);
                 this.logDebug(this.state);
                 this.publishStateChange();
+
+                if (this.state.alarmValue == true) {
+                    this.logDebug("ANALOG INPUT SIMULATION - publish event because of alarm");
+                    this.device.publishEvent('Warning', {details: 'Something is not normal here.'});
+                }
             }.bind(this), 17000));
 
             this.simulationIntervals.push(setInterval(function () {
@@ -113,6 +134,15 @@ function AnalogValue() {
                 this.logDebug("outOfService: " + this.state.outOfService);
                 this.logDebug(this.state);
                 this.publishStateChange();
+
+                if (this.state.outOfService == true) {
+                    this.logDebug("ANALOG INPUT SIMULATION - change operational state to notReachable");
+                    this.operationalState = {state: 'notReachable'};
+                } else {
+                    this.logDebug("ANALOG INPUT SIMULATION - change operational state to normal");
+                    this.operationalState = {state: 'normal'};
+                }
+                this.publishOperationalStateChange();
             }.bind(this), 61000));
         } else {
             this.logDebug("ANALOG VALUE START - in normal mode");

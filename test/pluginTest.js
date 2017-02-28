@@ -1,12 +1,12 @@
 var assert = require("assert");
 
-describe('[thing-it] BACnet Plugin', function () {
+describe('[thing-it] BACnet Device', function () {
     var testDriver;
 
     before(function () {
         testDriver = require("thing-it-test").createTestDriver({logLevel: "error"});
 
-        testDriver.registerDevicePlugin(__dirname + "/../bacNet");
+        testDriver.registerDevicePlugin(__dirname + "/../bacNetDevice");
         testDriver.registerUnitPlugin(__dirname + "/../default-units/binaryInput");
         testDriver.registerUnitPlugin(__dirname + "/../default-units/binaryValue");
         testDriver.registerUnitPlugin(__dirname + "/../default-units/analogInput");

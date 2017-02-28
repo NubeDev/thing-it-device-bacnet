@@ -2,11 +2,11 @@
     <table>
         <tr>
             <td>
-                <span class="lightPrimaryColor"
-                      style="font-size: 3em;">{{component._state.presentValue}}</span>
+                <i ng-if="component._state.alarmValue == true" style="color: orange" class="fa fa-warning fa-2x marginRightDefault" aria-hidden="true"></i>
             </td>
             <td>
-                <i ng-if="component._state.alarmValue == true" style="color: orange" class="fa fa-warning fa-2x" aria-hidden="true"></i>
+                <span class="lightPrimaryColor"
+                      style="font-size: 3em;">{{component._state.presentValue}}</span>
             </td>
         </tr>
     </table>
