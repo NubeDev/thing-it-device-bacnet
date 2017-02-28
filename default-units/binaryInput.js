@@ -19,7 +19,7 @@ module.exports = {
             }, {
                 id: "alarmValue", label: "Alarm Value",
                 type: {
-                    id: "integer"
+                    id: "boolean"
                 }
             }, {
                 id: "outOfService", label: "Out of Service",
@@ -93,23 +93,23 @@ function BinaryInput() {
 
             this.simulationIntervals.push(setInterval(function () {
                 this.state.presentValue = Math.random() >= 0.5;
-                this.publishStateChange();
                 this.logDebug("presentValue: " + this.state.presentValue);
                 this.logDebug(this.state);
+                this.publishStateChange();
             }.bind(this), 5000));
 
             this.simulationIntervals.push(setInterval(function () {
                 this.state.alarmValue = Math.random() >= 0.5;
-                this.publishStateChange();
                 this.logDebug("alarmValue: " + this.state.alarmValue);
                 this.logDebug(this.state);
+                this.publishStateChange();
             }.bind(this), 17000));
 
             this.simulationIntervals.push(setInterval(function () {
                 this.state.outOfService = Math.random() >= 0.5;
-                this.publishStateChange();
                 this.logDebug("outOfService: " + this.state.outOfService);
                 this.logDebug(this.state);
+                this.publishStateChange();
             }.bind(this), 61000));
 
         } else {
@@ -118,8 +118,6 @@ function BinaryInput() {
             //TODO: what are the correct names here?
             //this.device.objects[this.configuration.objectId] = {unit: this};
         }
-
-        this.logDebug("BINARY INPUT START - end before resolving promise");
 
         deferred.resolve();
 
@@ -130,6 +128,7 @@ function BinaryInput() {
      *
      */
     BinaryInput.prototype.stop = function () {
+        this.logDebug("BINARY INPUT STOP");
         var deferred = q.defer();
 
         if (this.isSimulated()) {

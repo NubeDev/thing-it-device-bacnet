@@ -1,26 +1,24 @@
 module.exports = {
     metadata: {
-        plugin: "binaryValue",
-        label: "BacNet Binary Value",
+        plugin: "analogValue",
+        label: "BacNet Analog Value",
         role: "actor",
-        family: "binaryValue",
+        family: "analogValue",
         deviceTypes: ["bacnet/bacNet"],
         services: [{
-            id: "on",
-            label: "On"
-        }, {
-            id: "off",
-            label: "Off"
-        }, {
-            id: "toggle",
-            label: "Toggle"
+            id: "update",
+            label: "Update"
+        },
+        {
+            id: "setPresentValue",
+            label: "Set Present Value"
         }],
 
         state: [
             {
                 id: "presentValue", label: "Present Value",
                 type: {
-                    id: "boolean"
+                    id: "decimal"
                 }
             }, {
                 id: "alarmValue", label: "Alarm Value",
@@ -68,7 +66,7 @@ module.exports = {
             }]
     },
     create: function () {
-        return new BinaryValue();
+        return new AnalogValue();
     }
 };
 
@@ -77,29 +75,29 @@ var q = require('q');
 /**
  *
  */
-function BinaryValue() {
+function AnalogValue() {
     /**
      *
      */
-    BinaryValue.prototype.start = function () {
-        this.logDebug("BINARY VALUE START");
+    AnalogValue.prototype.start = function () {
+        this.logDebug("ANALOG VALUE START");
         var deferred = q.defer();
 
-        this.logDebug("BINARY VALUE START - change state");
+        this.logDebug("ANALOG VALUE START - change state");
         this.state = {
-            presentValue: false,
+            presentValue: 0.0,
             alarmValue: false,
             outOfService: false
         };
 
-        this.logDebug("BINARY VALUE START - check if simulated");
+        this.logDebug("ANALOG VALUE START - check if simulated");
         if (this.isSimulated()) {
-            this.logDebug("BINARY VALUE START - in simulation");
+            this.logDebug("ANALOG VALUE START - in simulation");
             this.simulationIntervals = [];
 
             this.simulationIntervals.push(setInterval(function () {
                 if (Math.random() > 0.6) {
-                    this.toggle();
+                    this.setPresentValue(Math.random() * 100);
                 }
             }.bind(this), 10000));
 
@@ -117,7 +115,7 @@ function BinaryValue() {
                 this.publishStateChange();
             }.bind(this), 61000));
         } else {
-            this.logDebug("BINARY VALUE START - in normal mode");
+            this.logDebug("ANALOG VALUE START - in normal mode");
 
         }
 
@@ -129,7 +127,7 @@ function BinaryValue() {
     /**
      *
      */
-    BinaryValue.prototype.setStateFromBacNet = function (value) {
+    AnalogValue.prototype.setStateFromBacNet = function (value) {
         this.state.presentValue = value.value;
         this.logDebug("State", this.state);
         this.publishStateChange();
@@ -138,8 +136,8 @@ function BinaryValue() {
     /**
      *
      */
-    BinaryValue.prototype.stop = function () {
-        this.logDebug("BINARY VALUE STOP");
+    AnalogValue.prototype.stop = function () {
+        this.logDebug("ANALOG VALUE STOP");
         var deferred = q.defer();
 
         if (this.isSimulated()) {
@@ -158,28 +156,24 @@ function BinaryValue() {
     /**
      *
      */
-    BinaryValue.prototype.getState = function () {
+    AnalogValue.prototype.getState = function () {
         return this.state;
     };
 
     /**
      *
      */
-    BinaryValue.prototype.setState = function (state) {
-        if (state.presentValue) {
-            this.on();
-        } else {
-            this.off();
-        }
+    AnalogValue.prototype.setState = function (state) {
+        this.state = state;
     };
 
     /**
      *
      */
-    BinaryValue.prototype.on = function () {
+    AnalogValue.prototype.update = function () {
         var deferred = q.defer();
 
-        this.logDebug("Called on()");
+        this.logDebug("Called update()");
 
         if (this.isSimulated()) {
 
@@ -187,8 +181,6 @@ function BinaryValue() {
 
         }
 
-        this.state.presentValue = true;
-        this.logDebug("presentValue: " + this.state.presentValue);
         this.logDebug("State", this.state);
         this.publishStateChange();
 
@@ -200,10 +192,10 @@ function BinaryValue() {
     /**
      *
      */
-    BinaryValue.prototype.off = function () {
+    AnalogValue.prototype.setPresentValue = function (presentValue) {
         var deferred = q.defer();
 
-        this.logDebug("Called off()");
+        this.logDebug("Called setPresentValue()");
 
         if (this.isSimulated()) {
 
@@ -211,27 +203,10 @@ function BinaryValue() {
 
         }
 
-        this.state.presentValue = false;
+        this.state.presentValue = presentValue;
         this.logDebug("presentValue: " + this.state.presentValue);
         this.logDebug("State", this.state);
         this.publishStateChange();
-
-        deferred.resolve();
-
-        return deferred.promise;
-    };
-
-    /**
-     *
-     */
-    BinaryValue.prototype.toggle = function () {
-        var deferred = q.defer();
-
-        if (this.state.presentValue) {
-            this.off();
-        } else {
-            this.on();
-        }
 
         deferred.resolve();
 

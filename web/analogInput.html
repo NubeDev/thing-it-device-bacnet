@@ -2,8 +2,8 @@
     <table>
         <tr>
             <td>
-                <ti-switch ti-model="component._state.presentValue"
-                           ti-change="panel.callActorService(component, 'toggle')"></ti-switch>
+                <span class="lightPrimaryColor"
+                      style="font-size: 3em;">{{component._state.presentValue}}</span>
             </td>
             <td>
                 <i ng-if="component._state.alarmValue == true" style="color: orange" class="fa fa-warning fa-2x" aria-hidden="true"></i>

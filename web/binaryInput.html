@@ -1,5 +1,16 @@
-<div style="text-align: center;">
-    <span class="">{{component._state.presentValue}}</span><br>
-    <span class="">{{component._state.alarmValue}}</span><br>
-    <span class="">{{component._state.outOfService}}</span>
+<div class="flexLayout flexAlignCenter flexAdjustCenter">
+    <table>
+        <tr>
+            <td>
+                <ti-switch ti-model="component._state.presentValue">
+                </ti-switch>
+            </td>
+            <td>
+                <i ng-if="component._state.alarmValue == true" style="color: orange" class="fa fa-warning fa-2x" aria-hidden="true"></i>
+            </td>
+            <td>
+                <i ng-if="component._state.outOfService == true" style="color: red" class="fa fa-wrench fa-2x" aria-hidden="true"></i>
+            </td>
+        </tr>
+    </table>
 </div>

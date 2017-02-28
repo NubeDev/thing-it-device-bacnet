@@ -31,7 +31,34 @@ module.exports = {
                         "objectName": "Office Light 15",
                         "description": "Control light unit 15 on the ceiling in room 2 of the office."
                     }
-                }],
+                },
+                {
+                    "id": "analogInput1",
+                    "label": "Analog Input 1",
+                    "type": "analogInput",
+                    "logLevel": "debug",
+                    "configuration": {
+                        "simulated": true,
+                        "objectId": "102",
+                        "objectType": "temperature",
+                        "objectName": "Temperature Sensor 102",
+                        "description": "Monitors the temperature in room 2 of the office."
+                    }
+                },
+                {
+                    "id": "analogValue1",
+                    "label": "Analog Value 1",
+                    "type": "analogValue",
+                    "logLevel": "debug",
+                    "configuration": {
+                        "simulated": true,
+                        "objectId": "105",
+                        "objectType": "heat",
+                        "objectName": "Heat Regulator 105",
+                        "description": "Regulates the heat in room 2 of the office."
+                    }
+                }
+            ],
             "sensors": [],
             "services": [],
             "class": "Device",
