@@ -12,6 +12,8 @@ This allows you to
 
 by means of [thing-it-node](https://github.com/marcgille/thing-it-node) and [thing-it.com](http://www.thing-it.com).
 
+NOTE: This Device Plugin is in very early development stage.
+
 ## Installation
 
 ### Installation of NodeJS and [thing-it-node]
