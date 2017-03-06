@@ -12,6 +12,8 @@ This allows you to
 
 by means of [thing-it-node](https://github.com/marcgille/thing-it-node) and [thing-it.com](http://www.thing-it.com).
 
+NOTE: This Device Plugin is in very early development stage.
+
 ## Installation
 
 ### Installation of NodeJS and [thing-it-node]
@@ -50,16 +52,6 @@ tin run
 Install the **thing-it Mobile App** from the Apple Appstore or Google Play and set it up to connect to **[thing-it-node]** 
 locally as described [here](https://thing-it.com/thing-it/#/documentationPanel/mobileClient/connectionModes) or just connect your browser under 
 [http://localhost:3001](http://localhost:3001).
- 
-### OSRAM Lightify Setup
-
-Set up your OSRAM Lightify Gateway as described in the OSRAM Lightify documentation and/or instructions in the Mobile App to the same network as the [thing-it-node] Node Box you have configured above 
-and install all lighting and other devices also following the OSRAM Lightify documentation and/or  instructions in the Mobile App.
-
-On the **[thing-it] Mobile App** or in the browser, confirm the registration of the OSRAM Lightify Gateway.
-
-**[thing-it-node]** will automatically add all light bulbs and other OSRAM Lightify devices to your **[thing-it-node]** Configuration and 
-you will be able control these from the **[thing-it] Mobile App** immediately.
 
 ## Mobile UI
 
