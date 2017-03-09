@@ -6,13 +6,14 @@ module.exports = {
         {
             "plugin": "bacnet/bacNetDevice",
             "actors": [
+                /*
                 {
                     "id": "binaryInput1",
                     "label": "Binary Input 1",
                     "type": "binaryInput",
                     "logLevel": "debug",
                     "configuration": {
-                        "simulated": true,
+                        //"simulated": true,
                         "objectId": "22",
                         "objectType": "valve",
                         "objectName": "Air Supply 22",
@@ -25,7 +26,7 @@ module.exports = {
                     "type": "binaryValue",
                     "logLevel": "debug",
                     "configuration": {
-                        "simulated": true,
+                        //"simulated": true,
                         "objectId": "23",
                         "objectType": "light",
                         "objectName": "Office Light 15",
@@ -38,24 +39,24 @@ module.exports = {
                     "type": "analogInput",
                     "logLevel": "debug",
                     "configuration": {
-                        "simulated": true,
+                        //"simulated": true,
                         "objectId": "102",
                         "objectType": "temperature",
                         "objectName": "Temperature Sensor 102",
                         "description": "Monitors the temperature in room 2 of the office."
                     }
-                },
+                },*/
                 {
                     "id": "analogValue1",
                     "label": "Analog Value 1",
                     "type": "analogValue",
                     "logLevel": "debug",
                     "configuration": {
-                        "simulated": true,
-                        "objectId": "105",
-                        "objectType": "heat",
-                        "objectName": "Heat Regulator 105",
-                        "description": "Regulates the heat in room 2 of the office."
+                        //"simulated": true,
+                        "objectId": "Analog Input #1",
+                        "objectType": "Analog Input",
+                        "objectName": "AI 01",
+                        "description": "Heat Regulator 105 regulates the heat in room 2 of the office."
                     }
                 }
             ],
@@ -65,8 +66,8 @@ module.exports = {
             "id": "bacnet1",
             "label": "BACnet 1",
             "configuration": {
-                "simulated": true,
-                "ipAddress": "192.168.0.1",
+                //"simulated": true,
+                "ipAddress": "127.0.0.1",
                 "bacNetId": "12",
                 "deviceId": "23"
             }

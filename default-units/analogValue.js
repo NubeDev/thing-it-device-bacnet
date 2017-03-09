@@ -147,6 +147,7 @@ function AnalogValue() {
         } else {
             this.logDebug("ANALOG VALUE START - in normal mode");
 
+            //TODO: register listener for present value
         }
 
         deferred.resolve();
@@ -206,15 +207,25 @@ function AnalogValue() {
         this.logDebug("Called update()");
 
         if (this.isSimulated()) {
+            this.logDebug("State", this.state);
+            this.publishStateChange();
 
+            deferred.resolve();
         } else {
+            this.device.adapter.readProperty(this.configuration.objectId, 'Present_Value')
+                .then(function(result) {
+                    this.state.presentValue = result.propertyValue;
+                    this.logDebug("presentValue: " + this.state.presentValue);
+                    this.logDebug("State", this.state);
+                    this.publishStateChange();
 
+                    deferred.resolve();
+                }.bind(this))
+                .fail(function(result) {
+                    this.logDebug('it did not work');
+                    deferred.reject('it did not work');
+                }.bind(this));
         }
-
-        this.logDebug("State", this.state);
-        this.publishStateChange();
-
-        deferred.resolve();
 
         return deferred.promise;
     };
@@ -228,18 +239,30 @@ function AnalogValue() {
         this.logDebug("Called setPresentValue()");
 
         if (this.isSimulated()) {
+            this.state.presentValue = presentValue;
+            this.logDebug("presentValue: " + this.state.presentValue);
+            this.logDebug("State", this.state);
+            this.publishStateChange();
 
+            deferred.resolve();
         } else {
+            this.device.adapter.writeProperty(this.configuration.objectId, 'Present_Value', presentValue)
+                .then(function(result) {
+                    this.state.presentValue = result.propertyValue;
+                    this.logDebug("presentValue: " + this.state.presentValue);
+                    this.logDebug("State", this.state);
+                    this.publishStateChange();
 
+                    deferred.resolve();
+                }.bind(this))
+                .fail(function(result) {
+                    this.logError('it did not work')
+                    deferred.reject('it did not work');
+                }.bind(this));
         }
-
-        this.state.presentValue = presentValue;
-        this.logDebug("presentValue: " + this.state.presentValue);
-        this.logDebug("State", this.state);
-        this.publishStateChange();
-
-        deferred.resolve();
 
         return deferred.promise;
     };
+
+
 };

@@ -7,10 +7,11 @@ describe('[thing-it] BACnet Device', function () {
         testDriver = require("thing-it-test").createTestDriver({logLevel: "error"});
 
         testDriver.registerDevicePlugin(__dirname + "/../bacNetDevice");
-        testDriver.registerUnitPlugin(__dirname + "/../default-units/binaryInput");
-        testDriver.registerUnitPlugin(__dirname + "/../default-units/binaryValue");
-        testDriver.registerUnitPlugin(__dirname + "/../default-units/analogInput");
+        //testDriver.registerUnitPlugin(__dirname + "/../default-units/binaryInput");
+        //testDriver.registerUnitPlugin(__dirname + "/../default-units/binaryValue");
+        //testDriver.registerUnitPlugin(__dirname + "/../default-units/analogInput");
         testDriver.registerUnitPlugin(__dirname + "/../default-units/analogValue");
+
     });
     describe('Start Configuration', function () {
         this.timeout(10000);
@@ -26,7 +27,7 @@ describe('[thing-it] BACnet Device', function () {
             });
         });
     });
-
+    /*
     describe('Binary Input Test Update', function () {
         this.timeout(20000);
 
@@ -148,7 +149,7 @@ describe('[thing-it] BACnet Device', function () {
                 });
         });
     });
-
+    */
     describe('Analog Value Test Update', function () {
         this.timeout(20000);
 
@@ -168,7 +169,7 @@ describe('[thing-it] BACnet Device', function () {
 
         before(function () {
             testDriver.removeAllListeners();
-            testDriver.bacnet1.binaryValue1.state.presentValue = 10.1;
+            testDriver.bacnet1.analogValue1.state.presentValue = 10.1;
         });
         it('should set the present value and produce Actor State Change message', function (done) {
 

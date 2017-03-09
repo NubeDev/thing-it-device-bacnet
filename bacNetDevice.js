@@ -1,7 +1,3 @@
-/**
- * Created by phil on 22.02.17.
- */
-
 module.exports = {
     metadata: {
         family: 'bacnet',
@@ -51,6 +47,7 @@ module.exports = {
 };
 
 var q = require('q');
+var BacNetAdapter = require('./lib/bacNetAdapter.js');
 
 /**
  *
@@ -109,11 +106,12 @@ function BacNet() {
 
             deferred.resolve();
         } else {
-
             this.logDebug("Starting BACnet in non-simulated mode.");
-            this.logDebug(this.configuration);
+            //this.logDebug(this.configuration);
 
-            //TODO: Initilize / Connect over BacNetGateway
+            this.adapter = BacNetAdapter.create(this);
+            //TODO: where is the port configured or is this part of the ip address?
+            this.adapter.initialize(47808, this.configuration.ipAddress);
 
             deferred.resolve();
         }
@@ -130,8 +128,7 @@ function BacNet() {
         if (this.isSimulated()) {
             this.logDebug("Stopping BACnet in simulated mode.");
         } else {
-            //TODO: Disconnect from BacNetGateway
-            //this.zWave.disconnect();
+            this.adapter.stop();
         }
 
         deferred.resolve();

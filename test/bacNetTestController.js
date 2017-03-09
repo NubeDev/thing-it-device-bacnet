@@ -69,10 +69,23 @@ BACnetTestController.prototype.initialize = function (port, host) {
         //building response
         var responseBody = '';
 
+        if (messageJSON.type == 'RP') {
+            console.log('responding read property');
+            messageJSON.propertyValue = Math.random() * 100;
+            messageJSON.status = 1;
+        }
+
+        if (messageJSON.type == 'WP') {
+            console.log('responding write property');
+            messageJSON.status = 1;
+        }
+
         if (messageJSON.type == 'R') {
-            console.log('responding request logic')
+            console.log('responding request');
             messageJSON.response = 'me too';
-        } else if (messageJSON.type == 'L') {
+        }
+
+        if (messageJSON.type == 'L') {
             console.log('try matching listener');
             var matchingListener = _.find(this.listeners, {resource: messageJSON.resource});
 
@@ -148,12 +161,12 @@ BACnetTestController.prototype.initialize = function (port, host) {
             var listener = this.listeners[l];
             console.log(listener);
 
-            this.udpServer.send(responseBody, 0, responseBody.length, listener.port, listener.address, function (err, bytes) {
+            this.udpServer.send(responseBody, 0, responseBody.length, listener.port, listener.host, function (err, bytes) {
                 if (err) {
                     throw err;
                 }
 
-                console.log('UDP Server message sent to ' + listener.address + ':' + listener.port);
+                console.log('UDP Server message sent to ' + listener.host + ':' + listener.port);
             }.bind(this));
 
         }
@@ -172,15 +185,14 @@ var SERVER_HOST = '127.0.0.1';
 // BACnet default PORT
 var SERVER_PORT = 47808;
 
-var CLIENT_HOST = '127.0.0.1';
-var CLIENT_PORT = 48651;
-
 var testController = new BACnetTestController();
 testController.initialize(SERVER_PORT, SERVER_HOST);
 
+/*
 var BACNetAdapter = require('../lib/bacNetAdapter.js');
 var testAdapter = BACNetAdapter.create();
-testAdapter.initialize(CLIENT_PORT, CLIENT_HOST);
+testAdapter.initialize(SERVER_PORT, SERVER_HOST);
 
-//testAdapter.sendXRequest(SERVER_PORT, SERVER_HOST);
-testAdapter.registerXListener(SERVER_PORT, SERVER_HOST);
+testAdapter.sendXRequest();
+testAdapter.registerXListener();
+*/
