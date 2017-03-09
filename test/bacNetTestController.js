@@ -80,6 +80,30 @@ BACnetTestController.prototype.initialize = function (port, host) {
             messageJSON.status = 1;
         }
 
+        if (messageJSON.type == 'SCOV') {
+            console.log('try matching listener');
+            //TODO: find a better way to match for more critera then only propertyId
+            var matchingListener = _.find(this.listeners, {propertyId: messageJSON.propertyId});
+
+            if (matchingListener) {
+                console.log('listener ' + messageJSON.propertyId + ' already exists');
+                messageJSON.status = 2;
+            } else {
+                console.log('listener ' + messageJSON.propertyId + ' registered');
+                var listener = {
+                    host: remote.address,
+                    port: remote.port,
+                    bacNetId: messageJSON.bacNetId,
+                    deviceId: messageJSON.deviceId,
+                    objectId: messageJSON.objectId,
+                    propertyId: messageJSON.propertyId
+                };
+                this.listeners.push(listener);
+                messageJSON.status = 1;
+            }
+        }
+
+        /*
         if (messageJSON.type == 'R') {
             console.log('responding request');
             messageJSON.response = 'me too';
@@ -114,6 +138,7 @@ BACnetTestController.prototype.initialize = function (port, host) {
                 }
             }
         }
+        */
 
         responseBody = JSON.stringify(messageJSON);
         console.log(responseBody);
@@ -130,6 +155,40 @@ BACnetTestController.prototype.initialize = function (port, host) {
 
     }.bind(this));
 
+    //TODO: maybe set up better simulation data for notifications
+    this.interval = setInterval(function () {
+        var d = new Date();
+        var time = d.getTime();
+
+        for (l in this.listeners) {
+            var listener = this.listeners[l];
+            console.log(listener);
+
+            var messageJSON = {
+                time: time,
+                //Confirmed COV Notification
+                type: 'CCOVN',
+                bacNetId: listener.bacNetId,
+                deviceId: listener.deviceId,
+                objectId: listener.objectId,
+                propertyId: listener.propertyId,
+                propertyValue: Math.random() * 200
+            };
+
+            var responseBody = JSON.stringify(messageJSON);
+
+            this.udpServer.send(responseBody, 0, responseBody.length, listener.port, listener.host, function (err, bytes) {
+                if (err) {
+                    throw err;
+                }
+
+                console.log('UDP Server message sent to ' + listener.host + ':' + listener.port);
+            }.bind(this));
+
+        }
+    }.bind(this), 10000);
+
+    /*
     this.interval = setInterval(function () {
         var d = new Date();
         var time = d.getTime();
@@ -171,6 +230,7 @@ BACnetTestController.prototype.initialize = function (port, host) {
 
         }
     }.bind(this), 10000);
+    */
 
     this.udpServer.bind(port, host);
 };

@@ -144,13 +144,28 @@ function AnalogValue() {
                 }
                 this.publishOperationalStateChange();
             }.bind(this), 61000));
+
+            deferred.resolve();
         } else {
             this.logDebug("ANALOG VALUE START - in normal mode");
 
-            //TODO: register listener for present value
+            this.logDebug("ANALOG VALUE START - trying to subscribe to updates for present value");
+            this.device.adapter.subscribeCOV(this.configuration.objectId, 'Present_Value', function(notification) {
+                this.logDebug('received notification');
+                this.state.presentValue = notification.propertyValue;
+                this.logDebug("presentValue: " + this.state.presentValue);
+                this.logDebug("State", this.state);
+                this.publishStateChange();
+            }.bind(this))
+                .then(function(result) {
+                    this.logDebug('successfully subscribed');
+                    deferred.resolve();
+                }.bind(this))
+                .fail(function(result) {
+                    this.logDebug('it did not work');
+                    deferred.reject('it did not work');
+                }.bind(this));
         }
-
-        deferred.resolve();
 
         return deferred.promise;
     };

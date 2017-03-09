@@ -136,20 +136,8 @@ describe('[thing-it] BACnet Device', function () {
         });
     });
 
-    describe('Analog Input Test Update', function () {
-        this.timeout(20000);
-
-        before(function () {
-            testDriver.removeAllListeners();
-        });
-        it('should execute the update service successfully', function (done) {
-            testDriver.bacnet1.analogInput1.update()
-                .then(function() {
-                    done();
-                });
-        });
-    });
     */
+
     describe('Analog Value Test Update', function () {
         this.timeout(20000);
 
@@ -182,8 +170,26 @@ describe('[thing-it] BACnet Device', function () {
                 }
             });
 
-            testDriver.bacnet1.analogValue1.setPresentValue(Math.random() * 1000);
             testDriver.bacnet1.analogValue1.setPresentValue(123.45);
+        });
+    });
+
+    describe('Analog Value Test waiting for notifications', function () {
+        this.timeout(20000);
+
+        before(function () {
+            testDriver.removeAllListeners();
+        });
+        it('should set the present value and produce Actor State Change message', function (done) {
+
+            testDriver.addListener({
+                publishActorStateChange: function (device, actor, state) {
+                    if (actor.id === "analogValue1" && device.id === "bacnet1") {
+                        done();
+                    }
+
+                }
+            });
         });
     });
 
