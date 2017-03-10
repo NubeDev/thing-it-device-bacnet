@@ -62,7 +62,7 @@ BACnetTestController.prototype.initialize = function (port, host) {
         if (messageJSON.type == 'SCOV') {
             console.log('try matching listener');
             //TODO: find a better way to match for more critera then only propertyId
-            var matchingListener = _.find(this.listeners, {propertyId: messageJSON.propertyId});
+            var matchingListener = _.find(this.listeners, {host: remote.address, port: remote.port, objectId: messageJSON.objectId, propertyId: messageJSON.propertyId});
 
             if (matchingListener) {
                 console.log('listener ' + messageJSON.propertyId + ' already exists');
@@ -79,6 +79,21 @@ BACnetTestController.prototype.initialize = function (port, host) {
                 };
                 this.listeners.push(listener);
                 messageJSON.status = 1;
+            }
+        }
+
+        if (messageJSON.type == 'USCOV') {
+            console.log('try matching listener');
+            //TODO: find a better way to match for more critera then only propertyId
+            var matchingListener = _.find(this.listeners, {host: remote.address, port: remote.port, objectId: messageJSON.objectId, propertyId: messageJSON.propertyId});
+
+            if (matchingListener) {
+                this.listeners = _.without(this.listeners, matchingListener);
+                console.log('listener ' + messageJSON.propertyId + ' removed');
+                messageJSON.status = 1;
+            } else {
+                console.log('listener ' + messageJSON.propertyId + ' did not exist');
+                messageJSON.status = 2;
             }
         }
 
@@ -129,7 +144,7 @@ BACnetTestController.prototype.initialize = function (port, host) {
 
         }
     }.bind(this), 10000);
-    
+
     this.udpServer.bind(port, host);
 };
 

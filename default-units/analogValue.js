@@ -195,6 +195,7 @@ function AnalogValue() {
             deferred.resolve();
         } else {
             this.logDebug("ANALOG VALUE STOP - trying to unsubscribe from updates for present value");
+
             this.device.adapter.unsubscribeCOV(this.configuration.objectId, 'Present_Value')
                 .then(function(result) {
                     this.logDebug('successfully unsubscribed');
