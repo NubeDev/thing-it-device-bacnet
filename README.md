@@ -12,7 +12,19 @@ This allows you to
 
 by means of [thing-it-node](https://github.com/marcgille/thing-it-node) and [thing-it.com](http://www.thing-it.com).
 
-NOTE: This Device Plugin is in very early development stage.
+Hereby, this plugin represents basic BACnet objects such as
+
+* Analog Input
+* Analog Value
+* Binary Input
+* Binary Value
+
+connected to a generic BACnet Device and communicating via UDP/IP.
+
+Those who are interested in imlementing a specific, non-generic BACnet Device e.g. a thermostat with specific state, services and UI from a [thing-it-node] perspective
+can still use the *BacNetAdapter* class under *lib* in this package to implement communication with the BACnet network via IP/UDP.
+
+NOTE: This Device Plugin is in an early development stage.
 
 ## Installation
 
