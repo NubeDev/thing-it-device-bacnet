@@ -192,9 +192,19 @@ function AnalogValue() {
                     clearInterval(this.simulationIntervals[interval]);
                 }
             }
+            deferred.resolve();
+        } else {
+            this.logDebug("ANALOG VALUE STOP - trying to unsubscribe from updates for present value");
+            this.device.adapter.unsubscribeCOV(this.configuration.objectId, 'Present_Value')
+                .then(function(result) {
+                    this.logDebug('successfully unsubscribed');
+                    deferred.resolve();
+                }.bind(this))
+                .fail(function(result) {
+                    this.logDebug('it did not work');
+                    deferred.reject('it did not work');
+                }.bind(this));
         }
-
-        deferred.resolve();
 
         return deferred.promise;
     };
