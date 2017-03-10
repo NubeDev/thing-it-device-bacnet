@@ -40,8 +40,8 @@ npm install -g thing-it-node
 
 ### Connectivity to BACnet
 
-Make sure that the computer running [thing-it-node] is connected to the network where your BACnet Devices and Objects can be reachned via IP and obtain
-the BACnet IDs for the Devices and Objects you want to represent in [thing-it-node].
+Make sure that the computer running **[thing-it-node]** is connected to the network where your BACnet Devices and Objects can be reachned via IP and obtain
+the BACnet IDs for the Devices and Objects you want to represent in **[thing-it-node]**.
 
 ### Initialization and Start of [thing-it-node] 
 
