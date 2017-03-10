@@ -12,7 +12,19 @@ This allows you to
 
 by means of [thing-it-node](https://github.com/marcgille/thing-it-node) and [thing-it.com](http://www.thing-it.com).
 
-NOTE: This Device Plugin is in very early development stage.
+Hereby, this plugin represents basic BACnet Objects such as
+
+* **Analog Input**
+* **Analog Value**
+* **Binary Input**
+* **Binary Value**
+
+connected to a generic **BACnet Device** and communication to those via UDP/IP.
+
+Those who are interested in imlementing a specific, non-generic BACnet Device e.g. a thermostat with specific state, services and UI from a [thing-it-node] perspective
+can still use the **BacNetAdapter** class under **lib** in this package to easily implement communication with the BACnet network via IP/UDP.
+
+NOTE: This Device Plugin is in an early development stage.
 
 ## Installation
 
@@ -25,7 +37,12 @@ Then install **[thing-it-node]** via
 ```
 npm install -g thing-it-node
 ```
- 
+
+### Connectivity to BACnet
+
+Make sure that the computer running **[thing-it-node]** is connected to the network where your BACnet Devices and Objects can be reachned via IP and obtain
+the BACnet IDs for the Devices and Objects you want to represent in **[thing-it-node]**.
+
 ### Initialization and Start of [thing-it-node] 
 
 The **[thing-it-device-bacnet]** Plugin is installed with **[thing-it-node]**, hence there is no need to install it separately.
