@@ -12,7 +12,7 @@ This allows you to
 
 by means of [thing-it-node](https://github.com/marcgille/thing-it-node) and [thing-it.com](http://www.thing-it.com).
 
-Hereby, this plugin represents basic BACnet objects such as
+Hereby, this plugin represents basic BACnet Objects such as
 
 * **Analog Input**
 * **Analog Value**
@@ -37,7 +37,12 @@ Then install **[thing-it-node]** via
 ```
 npm install -g thing-it-node
 ```
- 
+
+### Connectivity to BACnet
+
+Make sure that the computer running [thing-it-node] is connected to the network where your BACnet Devices and Objects can be reachned via IP and obtain
+the BACnet IDs for the Devices and Objects you want to represent in [thing-it-node].
+
 ### Initialization and Start of [thing-it-node] 
 
 The **[thing-it-device-bacnet]** Plugin is installed with **[thing-it-node]**, hence there is no need to install it separately.
