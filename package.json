@@ -15,11 +15,11 @@
   },
   "dependencies": {
     "moment": "^2.17.0",
-    "q": "^1.4.1"
-  },
-  "devDependencies": {
-    "thing-it-test": "0.0.13",
+    "q": "^1.4.1",
     "dgram": "1.0.1",
     "underscore": "1.8.3"
+  },
+  "devDependencies": {
+    "thing-it-test": "0.0.13"
   }
 }
