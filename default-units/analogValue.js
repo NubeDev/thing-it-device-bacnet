@@ -148,7 +148,7 @@ function AnalogValue() {
             deferred.resolve();
         } else {
             this.logDebug("ANALOG VALUE START - in normal mode");
-
+            /*
             this.logDebug("ANALOG VALUE START - trying to subscribe to updates for present value");
             this.device.adapter.subscribeCOV(this.configuration.objectId, 'Present_Value', function(notification) {
                 this.logDebug('received notification');
@@ -165,6 +165,8 @@ function AnalogValue() {
                     this.logDebug('it did not work');
                     deferred.reject('it did not work');
                 }.bind(this));
+            */
+            deferred.resolve();
         }
 
         return deferred.promise;
@@ -195,7 +197,7 @@ function AnalogValue() {
             deferred.resolve();
         } else {
             this.logDebug("ANALOG VALUE STOP - trying to unsubscribe from updates for present value");
-
+            /*
             this.device.adapter.unsubscribeCOV(this.configuration.objectId, 'Present_Value')
                 .then(function(result) {
                     this.logDebug('successfully unsubscribed');
@@ -205,6 +207,8 @@ function AnalogValue() {
                     this.logDebug('it did not work');
                     deferred.reject('it did not work');
                 }.bind(this));
+            */
+            deferred.resolve();
         }
 
         return deferred.promise;
@@ -238,9 +242,13 @@ function AnalogValue() {
 
             deferred.resolve();
         } else {
-            this.device.adapter.readProperty(this.configuration.objectId, 'Present_Value')
+            this.device.adapter.readProperty(this.configuration.objectType, this.configuration.objectId, 'present-value')
                 .then(function(result) {
-                    this.state.presentValue = result.propertyValue;
+                    if (Array.isArray(result.propertyValue)) {
+                        this.state.presentValue = result.propertyValue[0];
+                    } else {
+                        this.state.presentValue = result.propertyValue;
+                    }
                     this.logDebug("presentValue: " + this.state.presentValue);
                     this.logDebug("State", this.state);
                     this.publishStateChange();
@@ -272,6 +280,7 @@ function AnalogValue() {
 
             deferred.resolve();
         } else {
+            /*
             this.device.adapter.writeProperty(this.configuration.objectId, 'Present_Value', presentValue)
                 .then(function(result) {
                     this.state.presentValue = result.propertyValue;
@@ -285,6 +294,8 @@ function AnalogValue() {
                     this.logError('it did not work')
                     deferred.reject('it did not work');
                 }.bind(this));
+            */
+            deferred.resolve();
         }
 
         return deferred.promise;

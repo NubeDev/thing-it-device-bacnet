@@ -53,10 +53,10 @@ module.exports = {
                     "logLevel": "debug",
                     "configuration": {
                         //"simulated": true,
-                        "objectId": "Analog Input #1",
-                        "objectType": "Analog Input",
-                        "objectName": "AI 01",
-                        "description": "Heat Regulator 105 regulates the heat in room 2 of the office."
+                        "objectId": "69",
+                        "objectType": "AnalogValue",
+                        "objectName": "spExt",
+                        "description": "External setpoint write"
                     }
                 }
             ],
@@ -67,9 +67,9 @@ module.exports = {
             "label": "BACnet 1",
             "configuration": {
                 //"simulated": true,
-                "ipAddress": "127.0.0.1",
-                "bacNetId": "12",
-                "deviceId": "23"
+                "ipAddress": "192.168.0.108",
+                "bacNetId": "1",
+                "deviceId": "1"
             }
         }],
     "services": [],

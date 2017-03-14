@@ -135,7 +135,6 @@ describe('[thing-it] BACnet Device', function () {
             testDriver.bacnet1.binaryValue1.toggle();
         });
     });
-
     */
 
     describe('Analog Value Test Update', function () {
@@ -152,6 +151,7 @@ describe('[thing-it] BACnet Device', function () {
         });
     });
 
+    /*
     describe('Analog Value Test setPresentValue', function () {
         this.timeout(20000);
 
@@ -192,6 +192,8 @@ describe('[thing-it] BACnet Device', function () {
             });
         });
     });
+
+    */
 
     describe('Stop Configuration', function () {
         this.timeout(10000);
