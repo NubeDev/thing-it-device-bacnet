@@ -1,3 +1,5 @@
+//TESTING with node-bacnet-master
+
 /*
 BACnet Object_Type keys
 
@@ -50,11 +52,22 @@ r.on('iam', function (iam) {
   //r.writeProperty(iam.deviceId, 2, 69, 'present-value', null, 22.13)
 })
 
+
 r.on('read-property-ack', function (property) {
-  //console.log('Received property /', objectIdToString(property.object), '/', property.property)
-  //console.log(property.value.map(objectIdToString))
+  console.log('read-property-ack')
   console.log(property)
   console.log(property.value[0])
+})
+
+r.on('write-property-ack', function (property) {
+    console.log('write-property-ack')
+    console.log(property)
+})
+
+r.on('ack', function (invokeId, response) {
+    console.log('incoming ack');
+    console.log(invokeId);
+    console.log(response);
 })
 
 //asks who is in the whole network
@@ -63,7 +76,14 @@ r.on('read-property-ack', function (property) {
 //only asks this ip address who is
 //r.whois('192.168.0.108')
 
-r.readProperty('192.168.0.108', 2, 70, 'present-value')
+r.readProperty('192.168.0.108', 2, 69, 'present-value', false, function(a,b) {
+    console.log('callback');
+    console.log(a);
+    console.log(b);
+});
+//r.writeProperty('192.168.0.108', 2, 69, 'present-value', false, 21.13)
+
+r.readProperty('192.168.0.108', 8, 1, 'object-list', false)
 
 setTimeout(function () {}, 1000)
 

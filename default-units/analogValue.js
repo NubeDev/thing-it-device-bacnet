@@ -280,8 +280,7 @@ function AnalogValue() {
 
             deferred.resolve();
         } else {
-            /*
-            this.device.adapter.writeProperty(this.configuration.objectId, 'Present_Value', presentValue)
+            this.device.adapter.writeProperty(this.configuration.objectType, this.configuration.objectId, 'present-value', presentValue)
                 .then(function(result) {
                     this.state.presentValue = result.propertyValue;
                     this.logDebug("presentValue: " + this.state.presentValue);
@@ -294,8 +293,6 @@ function AnalogValue() {
                     this.logError('it did not work')
                     deferred.reject('it did not work');
                 }.bind(this));
-            */
-            deferred.resolve();
         }
 
         return deferred.promise;

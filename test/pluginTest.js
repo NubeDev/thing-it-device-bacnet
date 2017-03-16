@@ -151,29 +151,29 @@ describe('[thing-it] BACnet Device', function () {
         });
     });
 
-    /*
+
     describe('Analog Value Test setPresentValue', function () {
         this.timeout(20000);
 
         before(function () {
             testDriver.removeAllListeners();
-            testDriver.bacnet1.analogValue1.state.presentValue = 10.1;
         });
         it('should set the present value and produce Actor State Change message', function (done) {
 
             testDriver.addListener({
                 publishActorStateChange: function (device, actor, state) {
-                    if (actor.id === "analogValue1" && device.id === "bacnet1" && state.presentValue === 123.45) {
+                    if (actor.id === "analogValue1" && device.id === "bacnet1" && state.presentValue === 15.5) {
                         done();
                     }
 
                 }
             });
 
-            testDriver.bacnet1.analogValue1.setPresentValue(123.45);
+            testDriver.bacnet1.analogValue1.setPresentValue(15.5);
         });
     });
 
+    /*
     describe('Analog Value Test waiting for notifications', function () {
         this.timeout(20000);
 
