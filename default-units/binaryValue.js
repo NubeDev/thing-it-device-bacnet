@@ -216,11 +216,18 @@ function BinaryValue() {
         } else {
             this.device.adapter.readProperty(this.configuration.objectType, this.configuration.objectId, 'present-value')
                 .then(function(result) {
+                    var propertyValue;
                     if (Array.isArray(result.propertyValue)) {
-                        this.state.presentValue = result.propertyValue[0];
+                        propertyValue = result.propertyValue[0];
                     } else {
-                        this.state.presentValue = result.propertyValue;
+                        propertyValue = result.propertyValue;
                     }
+                    if (propertyValue == 'active') {
+                        this.state.presentValue = true;
+                    } else {
+                        this.state.presentValue = false;
+                    }
+                    
                     this.logDebug("presentValue: " + this.state.presentValue);
                     this.logDebug("State", this.state);
                     this.publishStateChange();
