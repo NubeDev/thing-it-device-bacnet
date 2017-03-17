@@ -79,7 +79,16 @@ module.exports = {
                     id: "decimal"
                 },
                 defaultValue: 100
-            }]
+            },
+            {
+                label: "Polling Period",
+                id: "pollingPeriod",
+                type: {
+                    id: "integer"
+                },
+                defaultValue: 60
+            }
+        ]
     },
     create: function () {
         return new AnalogValue();
@@ -148,6 +157,11 @@ function AnalogValue() {
             deferred.resolve();
         } else {
             this.logDebug("ANALOG VALUE START - in normal mode");
+
+            this.interval = setInterval(function () {
+                this.update();
+            }.bind(this), this.configuration.pollingPeriod * 1000);
+
             /*
             this.logDebug("ANALOG VALUE START - trying to subscribe to updates for present value");
             this.device.adapter.subscribeCOV(this.configuration.objectId, 'Present_Value', function(notification) {
@@ -175,15 +189,6 @@ function AnalogValue() {
     /**
      *
      */
-    AnalogValue.prototype.setStateFromBacNet = function (value) {
-        this.state.presentValue = value.value;
-        this.logDebug("State", this.state);
-        this.publishStateChange();
-    };
-
-    /**
-     *
-     */
     AnalogValue.prototype.stop = function () {
         this.logDebug("ANALOG VALUE STOP");
         var deferred = q.defer();
@@ -197,6 +202,11 @@ function AnalogValue() {
             deferred.resolve();
         } else {
             this.logDebug("ANALOG VALUE STOP - trying to unsubscribe from updates for present value");
+
+            if (this.interval) {
+                clearInterval(this.interval);
+            }
+
             /*
             this.device.adapter.unsubscribeCOV(this.configuration.objectId, 'Present_Value')
                 .then(function(result) {

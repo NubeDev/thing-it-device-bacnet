@@ -6,7 +6,6 @@ module.exports = {
         {
             "plugin": "bacnet/bacNetDevice",
             "actors": [
-                /*
                 {
                     "id": "binaryInput1",
                     "label": "Binary Input 1",
@@ -14,10 +13,11 @@ module.exports = {
                     "logLevel": "debug",
                     "configuration": {
                         //"simulated": true,
-                        "objectId": "22",
-                        "objectType": "valve",
-                        "objectName": "Air Supply 22",
-                        "description": "Monitor the air supply in room 2 of the office."
+                        "objectId": "13",
+                        "objectType": "BinaryValue",
+                        "objectName": "alRainFb",
+                        "description": "Rain alarm",
+                        "pollingPeriod": 60
                     }
                 },
                 {
@@ -27,12 +27,13 @@ module.exports = {
                     "logLevel": "debug",
                     "configuration": {
                         //"simulated": true,
-                        "objectId": "23",
-                        "objectType": "light",
-                        "objectName": "Office Light 15",
-                        "description": "Control light unit 15 on the ceiling in room 2 of the office."
+                        "objectId": "12",
+                        "objectType": "BinaryValue",
+                        "objectName": "alWindFb",
+                        "description": "Wind alarm",
+                        "pollingPeriod": 60
                     }
-                },
+                }/*,
                 {
                     "id": "analogInput1",
                     "label": "Analog Input 1",
@@ -40,12 +41,13 @@ module.exports = {
                     "logLevel": "debug",
                     "configuration": {
                         //"simulated": true,
-                        "objectId": "102",
-                        "objectType": "temperature",
-                        "objectName": "Temperature Sensor 102",
-                        "description": "Monitors the temperature in room 2 of the office."
+                        "objectId": "73",
+                        "objectType": "AnalogValue",
+                        "objectName": "spDisplayFb",
+                        "description": "Displayed setpoint feedback (heat/cool average)",
+                        "pollingPeriod": 10
                     }
-                },*/
+                },
                 {
                     "id": "analogValue1",
                     "label": "Analog Value 1",
@@ -56,9 +58,12 @@ module.exports = {
                         "objectId": "69",
                         "objectType": "AnalogValue",
                         "objectName": "spExt",
-                        "description": "External setpoint write"
+                        "description": "External setpoint write",
+                        "minValue": 0,
+                        "maxValue": 30,
+                        "pollingPeriod": 10
                     }
-                }
+                }*/
             ],
             "sensors": [],
             "services": [],

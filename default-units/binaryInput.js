@@ -59,7 +59,16 @@ module.exports = {
                     id: "string"
                 },
                 defaultValue: ""
-            }]
+            },
+            {
+                label: "Polling Period",
+                id: "pollingPeriod",
+                type: {
+                    id: "integer"
+                },
+                defaultValue: 60
+            }
+        ]
     },
     create: function () {
         return new BinaryInput();
@@ -126,14 +135,16 @@ function BinaryInput() {
                 this.publishOperationalStateChange();
             }.bind(this), 61000));
 
+            deferred.resolve();
         } else {
             this.logDebug("BINARY INPUT START - in normal mode");
-            //this.device.nodes[this.configuration.nodeId] = {unit: this};
-            //TODO: what are the correct names here?
-            //this.device.objects[this.configuration.objectId] = {unit: this};
-        }
 
-        deferred.resolve();
+            this.interval = setInterval(function () {
+                this.update();
+            }.bind(this), this.configuration.pollingPeriod * 1000);
+
+            deferred.resolve();
+        }
 
         return deferred.promise;
     };
@@ -151,9 +162,18 @@ function BinaryInput() {
                     clearInterval(this.simulationIntervals[interval]);
                 }
             }
+
+            deferred.resolve();
+        } else {
+            this.logDebug("BINARY INPUT STOP - trying to unsubscribe from updates for present value");
+            if (this.interval) {
+                clearInterval(this.interval);
+            }
+
+            deferred.resolve();
         }
 
-        deferred.resolve();
+
 
         return deferred.promise;
     };
@@ -169,7 +189,7 @@ function BinaryInput() {
      *
      */
     BinaryInput.prototype.setState = function (state) {
-
+        this.state = state;
     };
 
     /**
@@ -181,15 +201,29 @@ function BinaryInput() {
         this.logDebug("Called update()");
 
         if (this.isSimulated()) {
+            this.logDebug("State", this.state);
+            this.publishStateChange();
 
+            deferred.resolve();
         } else {
+            this.device.adapter.readProperty(this.configuration.objectType, this.configuration.objectId, 'present-value')
+                .then(function(result) {
+                    if (Array.isArray(result.propertyValue)) {
+                        this.state.presentValue = result.propertyValue[0];
+                    } else {
+                        this.state.presentValue = result.propertyValue;
+                    }
+                    this.logDebug("presentValue: " + this.state.presentValue);
+                    this.logDebug("State", this.state);
+                    this.publishStateChange();
 
+                    deferred.resolve();
+                }.bind(this))
+                .fail(function(result) {
+                    this.logDebug('it did not work');
+                    deferred.reject('it did not work');
+                }.bind(this));
         }
-
-        this.logDebug("State", this.state);
-        this.publishStateChange();
-
-        deferred.resolve();
 
         return deferred.promise;
     };

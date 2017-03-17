@@ -59,7 +59,16 @@ module.exports = {
                     id: "string"
                 },
                 defaultValue: ""
-            }]
+            },
+            {
+                label: "Polling Period",
+                id: "pollingPeriod",
+                type: {
+                    id: "integer"
+                },
+                defaultValue: 60
+            }
+        ]
     },
     create: function () {
         return new AnalogInput();
@@ -128,12 +137,16 @@ function AnalogInput() {
                 this.publishOperationalStateChange();
             }.bind(this), 61000));
 
+            deferred.resolve();
         } else {
             this.logDebug("ANALOG INPUT START - in normal mode");
 
-        }
+            this.interval = setInterval(function () {
+                this.update();
+            }.bind(this), this.configuration.pollingPeriod * 1000);
 
-        deferred.resolve();
+            deferred.resolve();
+        }
 
         return deferred.promise;
     };
@@ -151,9 +164,16 @@ function AnalogInput() {
                     clearInterval(this.simulationIntervals[interval]);
                 }
             }
-        }
 
-        deferred.resolve();
+            deferred.resolve();
+        } else {
+            this.logDebug("ANALOG INPUT STOP - trying to unsubscribe from updates for present value");
+            if (this.interval) {
+                clearInterval(this.interval);
+            }
+
+            deferred.resolve();
+        }
 
         return deferred.promise;
     };
@@ -169,7 +189,7 @@ function AnalogInput() {
      *
      */
     AnalogInput.prototype.setState = function (state) {
-
+        this.state = state;
     };
 
     /**
@@ -181,15 +201,29 @@ function AnalogInput() {
         this.logDebug("Called update()");
 
         if (this.isSimulated()) {
+            this.logDebug("State", this.state);
+            this.publishStateChange();
 
+            deferred.resolve();
         } else {
+            this.device.adapter.readProperty(this.configuration.objectType, this.configuration.objectId, 'present-value')
+                .then(function(result) {
+                    if (Array.isArray(result.propertyValue)) {
+                        this.state.presentValue = result.propertyValue[0];
+                    } else {
+                        this.state.presentValue = result.propertyValue;
+                    }
+                    this.logDebug("presentValue: " + this.state.presentValue);
+                    this.logDebug("State", this.state);
+                    this.publishStateChange();
 
+                    deferred.resolve();
+                }.bind(this))
+                .fail(function(result) {
+                    this.logDebug('it did not work');
+                    deferred.reject('it did not work');
+                }.bind(this));
         }
-
-        this.logDebug("State", this.state);
-        this.publishStateChange();
-
-        deferred.resolve();
 
         return deferred.promise;
     };

@@ -65,7 +65,16 @@ module.exports = {
                     id: "string"
                 },
                 defaultValue: ""
-            }]
+            },
+            {
+                label: "Polling Period",
+                id: "pollingPeriod",
+                type: {
+                    id: "integer"
+                },
+                defaultValue: 60
+            }
+        ]
     },
     create: function () {
         return new BinaryValue();
@@ -130,23 +139,21 @@ function BinaryValue() {
                 }
                 this.publishOperationalStateChange();
             }.bind(this), 61000));
+
+            deferred.resolve();
         } else {
             this.logDebug("BINARY VALUE START - in normal mode");
 
+            this.interval = setInterval(function () {
+                this.update();
+            }.bind(this), this.configuration.pollingPeriod * 1000);
+
+            deferred.resolve();
         }
 
-        deferred.resolve();
+
 
         return deferred.promise;
-    };
-
-    /**
-     *
-     */
-    BinaryValue.prototype.setStateFromBacNet = function (value) {
-        this.state.presentValue = value.value;
-        this.logDebug("State", this.state);
-        this.publishStateChange();
     };
 
     /**
@@ -162,9 +169,15 @@ function BinaryValue() {
                     clearInterval(this.simulationIntervals[interval]);
                 }
             }
-        }
+            deferred.resolve();
+        } else {
+            this.logDebug("BINARY VALUE STOP - trying to unsubscribe from updates for present value");
+            if (this.interval) {
+                clearInterval(this.interval);
+            }
 
-        deferred.resolve();
+            deferred.resolve();
+        }
 
         return deferred.promise;
     };
@@ -190,65 +203,99 @@ function BinaryValue() {
     /**
      *
      */
-    BinaryValue.prototype.on = function () {
+    BinaryValue.prototype.update = function () {
         var deferred = q.defer();
 
-        this.logDebug("Called on()");
+        this.logDebug("Called update()");
 
         if (this.isSimulated()) {
+            this.logDebug("State", this.state);
+            this.publishStateChange();
 
+            deferred.resolve();
         } else {
+            this.device.adapter.readProperty(this.configuration.objectType, this.configuration.objectId, 'present-value')
+                .then(function(result) {
+                    if (Array.isArray(result.propertyValue)) {
+                        this.state.presentValue = result.propertyValue[0];
+                    } else {
+                        this.state.presentValue = result.propertyValue;
+                    }
+                    this.logDebug("presentValue: " + this.state.presentValue);
+                    this.logDebug("State", this.state);
+                    this.publishStateChange();
 
+                    deferred.resolve();
+                }.bind(this))
+                .fail(function(result) {
+                    this.logDebug('it did not work');
+                    deferred.reject('it did not work');
+                }.bind(this));
         }
 
-        this.state.presentValue = true;
-        this.logDebug("presentValue: " + this.state.presentValue);
-        this.logDebug("State", this.state);
-        this.publishStateChange();
+        return deferred.promise;
+    };
 
-        deferred.resolve();
+    /**
+     *
+     */
+    BinaryValue.prototype.setPresentValue = function (presentValue) {
+        var deferred = q.defer();
+
+        this.logDebug("Called setPresentValue()");
+
+        if (this.isSimulated()) {
+            this.state.presentValue = presentValue;
+            this.logDebug("presentValue: " + this.state.presentValue);
+            this.logDebug("State", this.state);
+            this.publishStateChange();
+
+            deferred.resolve();
+        } else {
+            this.device.adapter.writeProperty(this.configuration.objectType, this.configuration.objectId, 'present-value', presentValue)
+                .then(function(result) {
+                    this.state.presentValue = result.propertyValue;
+                    this.logDebug("presentValue: " + this.state.presentValue);
+                    this.logDebug("State", this.state);
+                    this.publishStateChange();
+
+                    deferred.resolve();
+                }.bind(this))
+                .fail(function(result) {
+                    this.logError('it did not work')
+                    deferred.reject('it did not work');
+                }.bind(this));
+        }
 
         return deferred.promise;
+    };
+
+    /**
+     *
+     */
+    BinaryValue.prototype.on = function () {
+        this.logDebug("Called on()");
+
+        return this.setPresentValue(1);
     };
 
     /**
      *
      */
     BinaryValue.prototype.off = function () {
-        var deferred = q.defer();
-
         this.logDebug("Called off()");
 
-        if (this.isSimulated()) {
-
-        } else {
-
-        }
-
-        this.state.presentValue = false;
-        this.logDebug("presentValue: " + this.state.presentValue);
-        this.logDebug("State", this.state);
-        this.publishStateChange();
-
-        deferred.resolve();
-
-        return deferred.promise;
+        return this.setPresentValue(0);
     };
 
     /**
      *
      */
     BinaryValue.prototype.toggle = function () {
-        var deferred = q.defer();
-
         if (this.state.presentValue) {
-            this.off();
+            return this.off();
         } else {
-            this.on();
+            return this.on();
         }
-
-        deferred.resolve();
-
-        return deferred.promise;
     };
 };

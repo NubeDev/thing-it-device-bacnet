@@ -76,14 +76,17 @@ r.on('ack', function (invokeId, response) {
 //only asks this ip address who is
 //r.whois('192.168.0.108')
 
-r.readProperty('192.168.0.108', 2, 69, 'present-value', false, function(a,b) {
+//r.writeProperty('192.168.0.108', 5, 12, 'present-value', false, '0');
+
+//setTimeout(function () {}, 1000);
+
+r.readProperty('192.168.0.108', 5, 12, 'present-value', false, function(a,b) {
     console.log('callback');
     console.log(a);
     console.log(b);
 });
-//r.writeProperty('192.168.0.108', 2, 69, 'present-value', false, 21.13)
 
-r.readProperty('192.168.0.108', 8, 1, 'object-list', false)
+//r.readProperty('192.168.0.108', 8, 1, 'object-list', false)
 
 setTimeout(function () {}, 1000)
 

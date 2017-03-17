@@ -7,10 +7,10 @@ describe('[thing-it] BACnet Device', function () {
         testDriver = require("thing-it-test").createTestDriver({logLevel: "error"});
 
         testDriver.registerDevicePlugin(__dirname + "/../bacNetDevice");
-        //testDriver.registerUnitPlugin(__dirname + "/../default-units/binaryInput");
-        //testDriver.registerUnitPlugin(__dirname + "/../default-units/binaryValue");
+        testDriver.registerUnitPlugin(__dirname + "/../default-units/binaryInput");
+        testDriver.registerUnitPlugin(__dirname + "/../default-units/binaryValue");
         //testDriver.registerUnitPlugin(__dirname + "/../default-units/analogInput");
-        testDriver.registerUnitPlugin(__dirname + "/../default-units/analogValue");
+        //testDriver.registerUnitPlugin(__dirname + "/../default-units/analogValue");
 
     });
     describe('Start Configuration', function () {
@@ -27,7 +27,7 @@ describe('[thing-it] BACnet Device', function () {
             });
         });
     });
-    /*
+
     describe('Binary Input Test Update', function () {
         this.timeout(20000);
 
@@ -61,14 +61,9 @@ describe('[thing-it] BACnet Device', function () {
             });
 
             testDriver.bacnet1.binaryValue1.on();
-
-            //testDriver.bacnet1.binaryValue1.off()
-            //    .then(function () {
-            //        testDriver.bacnet1.binaryValue1.on();
-            //    });
         });
     });
-
+    /*
     describe('Binary Value Test OFF', function () {
         this.timeout(20000);
 
@@ -135,7 +130,25 @@ describe('[thing-it] BACnet Device', function () {
             testDriver.bacnet1.binaryValue1.toggle();
         });
     });
-    */
+
+    describe('Analog Input Test waiting for notifications/polling update', function () {
+        this.timeout(20000);
+
+        before(function () {
+            testDriver.removeAllListeners();
+        });
+        it('should set the present value and produce Actor State Change message', function (done) {
+
+            testDriver.addListener({
+                publishActorStateChange: function (device, actor, state) {
+                    if (actor.id === "analogInput1" && device.id === "bacnet1") {
+                        done();
+                    }
+
+                }
+            });
+        });
+    });
 
     describe('Analog Value Test Update', function () {
         this.timeout(20000);
@@ -173,8 +186,7 @@ describe('[thing-it] BACnet Device', function () {
         });
     });
 
-    /*
-    describe('Analog Value Test waiting for notifications', function () {
+    describe('Analog Value Test waiting for notifications/polling update', function () {
         this.timeout(20000);
 
         before(function () {
@@ -192,9 +204,7 @@ describe('[thing-it] BACnet Device', function () {
             });
         });
     });
-
     */
-
     describe('Stop Configuration', function () {
         this.timeout(10000);
 
