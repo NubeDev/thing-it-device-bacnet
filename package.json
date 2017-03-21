@@ -21,6 +21,7 @@
     "node-bacnet-master": "1.0.0"
   },
   "devDependencies": {
-    "thing-it-test": "0.0.13"
+    "thing-it-test": "0.0.13",
+    "bacstack": "0.0.1-beta.1"
   }
 }

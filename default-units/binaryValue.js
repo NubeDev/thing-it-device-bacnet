@@ -227,7 +227,7 @@ function BinaryValue() {
                     } else {
                         this.state.presentValue = false;
                     }
-                    
+
                     this.logDebug("presentValue: " + this.state.presentValue);
                     this.logDebug("State", this.state);
                     this.publishStateChange();
