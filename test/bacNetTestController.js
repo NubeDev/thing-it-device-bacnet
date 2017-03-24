@@ -2,7 +2,6 @@ var dgram = require('dgram');
 var q = require('q');
 var _ = require('underscore');
 
-var tools = new Tools();
 var bvlc = new BVLC();
 var npdu = new NPDU();
 var apdu = new APDU();
@@ -388,48 +387,18 @@ BACnetTestController.prototype.whoIs = function (address) {
 BACnetTestController.prototype.readProperty = function (address, objectType, objectId, property) {
     var invokeId = 1;
     var serviceChoice = 12; // this is the number for service read property
-    //TODO: Size of buffer needs to be adjusted
-    var message = Buffer.alloc(100);
+    //TODO: Size of buffer needs to be adjusted dynamically
+    var buffer = Buffer.alloc(50);
     var offset = new Offset(4);
 
-    npdu.write(message, offset);
-    console.log(message);
-    apdu.write(message, offset, invokeId, serviceChoice);
-    console.log(message);
-
-    /*
-    var apdu = this.apdu(invokeId, serviceChoice);
-
-    //object identifier
-    //first byte context tag, tag class, length value type
-    var contextTagObject = '0'; //contextTag 0 meaning this is the first parameter
-    var tagClassLengthValueObject = 'c'; //tagClass 1 (binary 1000) and lenght 4 (binary 100) encoded together as binary 1100 equals hex c
-
-    //next four bytes for object type (10 bit) and for instance number (22 bit)
-    var binaryObjectType = this.intNumberToBinaryString(objectType);
-    var binaryObjectId = this.addLeadingZerosToString(this.intNumberToBinaryString(objectId), 22);
-    var objectInstance = this.addLeadingZerosToString(this.binaryStringToHexString(binaryObjectType + binaryObjectId),8);
-
-    //property identifier
-    //first byte context tag, tag class, length value type
-    var contextTagProperty = '1'; //contextTag 1 meaning this is the second parameter
-    var tagClassLengthValueProperty = '9'; //tagClass 1 and length 1 encoded together as binary 1001 equals hex 9
-
-    //next byte for property key (e.g. present-value has 85 equals hex 55)
-    //var propertyKey = '55'; //presentValue is 85 that is in hex 55
-    var propertyKey = this.intNumberToHexString(property);
-
-    var readProperty = contextTagObject + tagClassLengthValueObject + objectInstance + contextTagProperty + tagClassLengthValueProperty + propertyKey;
-
-    var m = npdu + apdu + readProperty;
-
-    m = this.bvlc((m.length / 2) + 4) + m;
-
-    var buffer = Buffer.from(m, 'hex');
+    npdu.write(buffer, offset);
+    apdu.write(buffer, offset, invokeId, serviceChoice);
+    apdu.writeObject(buffer, offset, 0, objectType, objectId);
+    apdu.writeProperty(buffer, offset, 1, property);
+    bvlc.write(buffer, offset);
 
     console.log(buffer);
     this.send(buffer, 0, buffer.length, 47808, address);
-    */
 };
 
 BACnetTestController.prototype.writeProperty = function (address, objectType, objectId, property, dataType, propertyValue, priority) {
@@ -437,73 +406,19 @@ BACnetTestController.prototype.writeProperty = function (address, objectType, ob
     //priority is low (16), there is no arrayIndex (-1) and it is binaryData (9)
     //'./bacwp 1 5 12 85 16 -1 9 0' //bacnet-stack command in terminal
     //81 0a 00 17 01 04 00 05 01 0f 0c 01 40 00 0c 19 55 3e 91 00 3f 49 10
-    //TODO: needs to be managed by BACnet Adapter
     var invokeId = 1;
     var serviceChoice = 15;
+    //TODO: Size of buffer needs to be adjusted dynamically
+    var buffer = Buffer.alloc(50);
+    var offset = new Offset(4);
 
-    var npdu = this.npdu();
-    var apdu = this.apdu(invokeId, serviceChoice);
-
-    //object identifier
-    //first byte context tag, tag class, length value type
-    var contextTagObject = '0'; //contextTag 0 meaning this is the first parameter
-    var tagClassLengthValueObject = 'c'; //tagClass 1 (binary 1000) and lenght 4 (binary 100) encoded together as binary 1100 equals hex c
-
-    //next four bytes for object type (10 bit) and for instance number (22 bit)
-    var binaryObjectType = this.intNumberToBinaryString(objectType);
-    var binaryObjectId = this.addLeadingZerosToString(this.intNumberToBinaryString(objectId), 22);
-    var objectInstance = this.addLeadingZerosToString(this.binaryStringToHexString(binaryObjectType + binaryObjectId),8);
-
-    //property identifier
-    //first byte context tag, tag class, length value type
-    var contextTagProperty = '1'; //contextTag 1 meaning this is the second parameter
-    var tagClassLengthValueProperty = '9'; //tagClass 1 and length 1 encoded together as binary 1001 equals hex 9
-
-    //next byte for property key (e.g. present-value has 85 equals hex 55)
-    var propertyKey = this.intNumberToHexString(property);
-
-    //propertyValue
-    //open tag
-    var openTag = '3e';
-
-    //value
-    var valueTag;
-    var value;
-    if (dataType == 2) {
-        console.log('unsigned int');
-        var valueTag = '21';
-        buf = Buffer.alloc(1);
-        buf.writeUInt8(propertyValue);
-        var value = buf.toString('hex');
-    } else if (dataType == 4) {
-        console.log('real');
-        var valueTag = '44';
-        buf = Buffer.alloc(4);
-        buf.writeFloatBE(propertyValue);
-        var value = buf.toString('hex');
-    } else if (dataType == 9) {
-        console.log('enumerated');
-        var valueTag = '91';
-        var value = this.addLeadingZerosToString(this.intNumberToHexString(propertyValue),2);
-    } else {
-        console.log('unsupported data type');
-    }
-
-    //close tag
-    var closeTag = '3f';
-
-    //priority
-    var priorityTag = '49';
-    var priorityValue = this.addLeadingZerosToString(this.intNumberToHexString(priority),2);
-
-    var writeProperty = contextTagObject + tagClassLengthValueObject + objectInstance + contextTagProperty + tagClassLengthValueProperty + propertyKey
-        + openTag + valueTag + value + closeTag + priorityTag + priorityValue;
-
-    var m = npdu + apdu + writeProperty;
-
-    m = this.bvlc((m.length / 2) + 4) + m;
-
-    var buffer = Buffer.from(m, 'hex');
+    npdu.write(buffer, offset);
+    apdu.write(buffer, offset, invokeId, serviceChoice);
+    apdu.writeObject(buffer, offset, 0, objectType, objectId);
+    apdu.writeProperty(buffer, offset, 1, property);
+    apdu.writeValue(buffer, offset, 3, dataType, propertyValue);
+    apdu.writeTaggedParameter(buffer, offset, 4, priority);
+    bvlc.write(buffer, offset);
 
     console.log(buffer);
     this.send(buffer, 0, buffer.length, 47808, address);
@@ -513,43 +428,21 @@ BACnetTestController.prototype.subscribeCOV = function (address, objectType, obj
     var invokeId = 1;
     var serviceChoice = 5; // this is the number for service subscribeCOV
 
-    var npdu = this.npdu();
-    var apdu = this.apdu(invokeId, serviceChoice);
+    //TODO: Size of buffer needs to be adjusted dynamically
+    var buffer = Buffer.alloc(50);
+    var offset = new Offset(4);
 
-    //processId
-    var tagProcessId = '09';
-    var processId = this.addLeadingZerosToString(this.intNumberToHexString(processId), 2);
-
-    //object identifier
-    var contextTagObject = '1'; //contextTag 1 meaning this is the second parameter
-    var tagClassLengthValueObject = 'c'; //tagClass 1 (binary 1000) and lenght 4 (binary 100) encoded together as binary 1100 equals hex c
-
-    //next four bytes for object type (10 bit) and for instance number (22 bit)
-    var binaryObjectType = this.intNumberToBinaryString(objectType);
-    var binaryObjectId = this.addLeadingZerosToString(this.intNumberToBinaryString(objectId), 22);
-    var objectInstance = this.addLeadingZerosToString(this.binaryStringToHexString(binaryObjectType + binaryObjectId), 8);
-
-    var subscribeCOV = tagProcessId + processId + contextTagObject + tagClassLengthValueObject + objectInstance;
-
-    //isConfirmed
+    npdu.write(buffer, offset);
+    apdu.write(buffer, offset, invokeId, serviceChoice);
+    apdu.writeTaggedParameter(buffer, offset, 0, processId);
+    apdu.writeObject(buffer, offset, 1, objectType, objectId);
     if (isConfirmed != undefined) {
-        var tagIsConfirmed = '29';
-        var isConfirmed = this.addLeadingZerosToString(this.intNumberToHexString(isConfirmed), 2);
-        subscribeCOV = subscribeCOV + tagIsConfirmed + isConfirmed;
+        apdu.writeTaggedParameter(buffer, offset, 2, isConfirmed);
     }
-
-    //lifeTime
     if (lifeTime != undefined) {
-        var tagLifeTime = '39'
-        var lifeTime = this.addLeadingZerosToString(this.intNumberToHexString(lifeTime),2);
-        subscribeCOV = subscribeCOV + tagLifeTime + lifeTime;
+        apdu.writeTaggedParameter(buffer, offset, 3, lifeTime);
     }
-
-    var m = npdu + apdu + subscribeCOV;
-
-    m = this.bvlc((m.length / 2) + 4) + m;
-
-    var buffer = Buffer.from(m, 'hex');
+    bvlc.write(buffer, offset);
 
     console.log(buffer);
     this.send(buffer, 0, buffer.length, 47808, address);
@@ -560,21 +453,20 @@ BACnetTestController.prototype.subscribeCOV = function (address, objectType, obj
 function BVLC() {
 }
 
-BVLC.prototype.write = function (messageLength, messageFunction) {
+BVLC.prototype.write = function (buffer, offset, messageFunction) {
     //1st byte type, is always the same indicating
-    var type = '81';
-
     //2nd byte function of message, that is unicast (e.g. readProperty) or broadcast (e.g. whoIs)
-    var func = '0a';
+
+    var type = 0x81;
+    var func = 0x0a;
     if (messageFunction == 'broadcast') {
-        func = '0b';
+        func = 0x0b;
     }
+    var len = offset.set(0);
 
-    //3rd and 4th byte for length of total message, so bvlc, npdu and apdu together
-    var len = Tools.addLeadingZerosToString(Tools.intNumberToHexString(messageLength),4);
-
-    var bvlc = type + func + len;
-    return bvlc;
+    buffer.writeUInt8(type, offset.up());
+    buffer.writeUInt8(func, offset.up());
+    buffer.writeUInt16BE(len, offset.up());
 };
 
 BVLC.prototype.read = function (bvlc) {
@@ -617,16 +509,48 @@ APDU.prototype.write = function (buffer, offset, invokeId, serviceChoice) {
     buffer.writeUInt8(serviceChoice, offset.up());
 };
 
-APDU.prototype.writeTag = function (buffer, offset) {
+APDU.prototype.writeTag = function (buffer, offset, contextTagNumber, tagClass, tagValue) {
+    //contextTagNumber has 4 bits, tagClass 1 bit and tagValue 3 bits
+    var tagByte = (contextTagNumber << 4) | (tagClass << 3) | tagValue;
+    buffer.writeUInt8(tagByte, offset.up());
 };
 
-APDU.prototype.writeObject = function (buffer, offset) {
+APDU.prototype.writeObject = function (buffer, offset, context, objectType, objectId) {
+    //objectType has 10 bits and objectId has 22bits
+    var objectBytes = (objectType << 22) | objectId;
+    this.writeTag(buffer, offset, context, 1, 4);
+    buffer.writeUInt32BE(objectBytes, offset.up(4));
 };
 
-APDU.prototype.writeProperty = function (buffer, offset) {
+APDU.prototype.writeProperty = function (buffer, offset, context, propertyKey) {
+    this.writeTag(buffer, offset, context, 1, 1);
+    buffer.writeUInt8(propertyKey, offset.up());
 };
 
-APDU.prototype.writeValue = function (buffer, offset) {
+APDU.prototype.writeValue = function (buffer, offset, context, dataType, propertyValue) {
+    //TODO: only dataType 2 (unsigned int), 4 (real/float), 9 (enumerated) are supported by this code
+    var len = 1; //lenght 1 byte is sufficient for dataType 2 (unsigned int) and dataType 9 (enumerated)
+    if (dataType == 4) {
+        len = 4; //dataType 4 is a real/float, which is 4 bytes
+    }
+
+    //openTag
+    apdu.writeTag(buffer, offset, context, 1, 6);
+    //tag indicating dataType of value
+    apdu.writeTag(buffer, offset, dataType, 0, len);
+    //value
+    if (dataType == 4) {
+        buffer.writeFloatBE(propertyValue, offset.up(len));
+    } else {
+        buffer.writeUInt8(propertyValue, offset.up(len));
+    }
+    //closeTag
+    apdu.writeTag(buffer, offset, context, 1, 7);
+};
+
+APDU.prototype.writeTaggedParameter = function (buffer, offset, context, param) {
+    apdu.writeTag(buffer, offset, context, 1, 1);
+    buffer.writeUInt8(param, offset.up());
 };
 
 APDU.prototype.read = function () {
@@ -668,50 +592,6 @@ Offset.prototype.down = function (diff) {
     return this.offset + diff;
 };
 
-function Tools() {
-};
-
-Tools.prototype.addLeadingZerosToString = function (string, stringLength) {
-    if (string.length < stringLength) {
-        while (string.length < stringLength) {
-            string = '0' + string;
-        }
-    }
-    return string;
-};
-
-Tools.prototype.intNumberToHexString = function (intNumber) {
-    var hexString = intNumber.toString(16);
-    return hexString;
-};
-
-Tools.prototype.hexStringToIntNumber = function (hexString) {
-    var intNumber = parseInt(hexString, 16);
-    return intNumber;
-};
-
-Tools.prototype.binaryStringToHexString = function (binaryString) {
-    var intNumber = parseInt(binaryString, 2);
-    var hexString = intNumber.toString(16);
-    return hexString;
-};
-
-Tools.prototype.hexStringToBinaryString = function (hexString) {
-    var intNumber = parseInt(hexString, 16);
-    var binaryString = intNumber.toString(2);
-    return binaryString;
-};
-
-Tools.prototype.intNumberToBinaryString = function (intNumber) {
-    var binaryString = intNumber.toString(2);
-    return binaryString;
-};
-
-Tools.prototype.binaryStringToIntNumber = function (binaryString) {
-    var intNumber = parseInt(binaryString, 2);
-    return intNumber;
-};
-
 //START TEST CONTROLLER
 
 //var SERVER_HOST = '127.0.0.1';
@@ -725,7 +605,7 @@ testController.initialize(SERVER_PORT)
     .then(function() {
         //testController.whoIs();
         //tests for read in the following order: binaryValue, analogValue, multiStateValue
-        testController.readProperty('192.168.0.108', 5, 12, 85);
+        //testController.readProperty('192.168.0.108', 5, 12, 85);
         //testController.readProperty('192.168.0.108', 2, 69, 85);
         //testController.readProperty('192.168.0.108', 19, 26, 85);
         //tests for write in the following order: binaryValue, analogValue, multiStateValue
@@ -737,5 +617,5 @@ testController.initialize(SERVER_PORT)
         //testController.subscribeCOV('192.168.0.108', 2, 69, 1, 0, 0);
         //testController.subscribeCOV('192.168.0.108', 19, 26, 1, 0, 0);
         //cancel subscription
-        //testController.subscribeCOV('192.168.0.108', 2, 69, 1);
+        //testController.subscribeCOV('192.168.0.108', 5, 12, 1);
     }.bind(this));
