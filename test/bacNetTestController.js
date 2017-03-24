@@ -184,10 +184,20 @@ BACnetTestController.prototype.send = function (buffer, offset, length, port, ad
     }.bind(this));
 };
 
-BACnetTestController.prototype.handleMessage = function (message) {
-    console.log(message);
+BACnetTestController.prototype.handleMessage = function (buffer) {
+    console.log(buffer);
     var result = {};
-    var hexMessage = message.toString('hex')
+    var offset = new Offset();
+
+    result.bvlc = bvlc.read(buffer, offset);
+    console.log(result);
+    result.npdu = npdu.read(buffer, offset);
+    console.log(result);
+    result.apdu = apdu.read(buffer, offset);
+    console.log(result);
+
+    /*
+    var hexMessage = buffer.toString('hex')
 
     //BVLC
     var bvlc = hexMessage.substr(0, 8);
@@ -362,6 +372,7 @@ BACnetTestController.prototype.handleMessage = function (message) {
         console.log('Unsupported APDU Type');
         console.log('APDU type - ' + apduTypeInt);
     }
+    */
 
 };
 
@@ -402,10 +413,6 @@ BACnetTestController.prototype.readProperty = function (address, objectType, obj
 };
 
 BACnetTestController.prototype.writeProperty = function (address, objectType, objectId, property, dataType, propertyValue, priority) {
-    //example for writing (15) the present value (85) of an binaryValue object (5) with Id (12) to (0).
-    //priority is low (16), there is no arrayIndex (-1) and it is binaryData (9)
-    //'./bacwp 1 5 12 85 16 -1 9 0' //bacnet-stack command in terminal
-    //81 0a 00 17 01 04 00 05 01 0f 0c 01 40 00 0c 19 55 3e 91 00 3f 49 10
     var invokeId = 1;
     var serviceChoice = 15;
     //TODO: Size of buffer needs to be adjusted dynamically
@@ -469,7 +476,14 @@ BVLC.prototype.write = function (buffer, offset, messageFunction) {
     buffer.writeUInt16BE(len, offset.up());
 };
 
-BVLC.prototype.read = function (bvlc) {
+BVLC.prototype.read = function (buffer, offset) {
+    var bvlc = {};
+
+    bvlc.type = buffer.readUInt8(offset.up());
+    bvlc.func = buffer.readUInt8(offset.up());
+    bvlc.length = buffer.readUInt16BE(offset.up(2));
+
+    return bvlc;
 };
 
 function NPDU() {
@@ -486,7 +500,29 @@ NPDU.prototype.write = function (buffer, offset) {
     buffer.writeUInt8(type, offset.up());
 };
 
-NPDU.prototype.read = function (npdu) {
+NPDU.prototype.read = function (buffer, offset) {
+    var npdu = {};
+
+    npdu.version = buffer.readUInt8(offset.up());
+
+    var control = buffer.readUInt8(offset.up());
+    npdu.control = {};
+    npdu.control.noApduMessageType = control >> 7;
+    npdu.control.reserved1 = (control >> 6) & 0x01;
+    npdu.control.destinationSpecifier = (control >> 5) & 0x01;
+    npdu.control.reserved2 = (control >> 4) & 0x01;
+    npdu.control.sourceSpecifier = (control >> 3) & 0x01;
+    npdu.control.expectingReply = (control >> 2) & 0x01;
+    npdu.control.priority1 = (control >> 1) & 0x01;
+    npdu.control.priority2 = control & 0x01;
+
+    if (npdu.control.destinationSpecifier == 1) {
+        npdu.destinationNetworkAddress = buffer.readUInt16BE(offset.up(2));
+        npdu.destinationMacLayerAddressLength = buffer.readUInt8(offset.up());
+        npdu.hopCount = buffer.readUInt8(offset.up());
+    }
+
+    return npdu;
 };
 
 function APDU() {
@@ -553,7 +589,73 @@ APDU.prototype.writeTaggedParameter = function (buffer, offset, context, param) 
     buffer.writeUInt8(param, offset.up());
 };
 
-APDU.prototype.read = function () {
+APDU.prototype.read = function (buffer, offset, result) {
+    var apdu = {};
+    var firstByte = buffer.readUInt8(offset.up());
+    apdu.type = firstByte >> 4;
+
+    if (apdu.type == 1) {
+        console.log('UNCONFIRMED REQUEST');
+
+    } else if (apdu.type == 2) {
+        console.log('SIMPLE ACK');
+
+    } else if (apdu.type == 3) {
+        console.log('COMPLEX ACK');
+        apdu.pduFlags = {};
+        apdu.pduFlags.segmentedRequest = (firstByte >> 3) & 0x01;
+        apdu.pduFlags.moreSegments = (firstByte >> 2) & 0x01;
+        apdu.invokeId = buffer.readUInt8(offset.up());
+        apdu.serviceChoice = buffer.readUInt8(offset.up());
+
+        if (apdu.serviceChoice == 12) {
+            console.log('READ PROPERTY');
+            var readProperty = {};
+            readProperty.object = this.readObject(buffer, offset);
+            readProperty.property = this.readProperty(buffer, offset);
+            readProperty.propertyValue = this.readValue(buffer, offset);
+            apdu.readProperty = readProperty;
+        }
+    } else if (result.apdu.type == 5) {
+        console.log('ERROR');
+    } else {
+        console.log('APDU TYPE ' + result.apdu.type + 'not handled yet.')
+    }
+    return apdu;
+};
+
+APDU.prototype.readTag = function (buffer, offset) {
+    var tag = {};
+    var byte = buffer.readUInt8(offset.up());
+    tag.contextTagNumber = byte >> 4;
+    tag.tagClass = (byte >> 3) & 0x01;
+    tag.tagValue = byte & 0x07;
+    return tag;
+};
+
+APDU.prototype.readObject = function (buffer, offset) {
+    var obj = {};
+    obj.tag = this.readTag(buffer, offset);
+    var bytes = buffer.readUInt32BE(offset.up(4));
+    obj.objectType = bytes >> 22;
+    obj.objectId = (obj.objectType << 22) ^ bytes;
+    console.log(obj);
+    return obj;
+};
+
+APDU.prototype.readProperty = function (buffer, offset) {
+    var property = {};
+    return property;
+};
+
+APDU.prototype.readValue = function (buffer, offset) {
+    var value = {};
+    return value;
+};
+
+APDU.prototype.readTaggedParameter = function (buffer, offset) {
+    var taggedParam = {};
+    return taggedParam;
 };
 
 function Offset(value) {
@@ -605,7 +707,7 @@ testController.initialize(SERVER_PORT)
     .then(function() {
         //testController.whoIs();
         //tests for read in the following order: binaryValue, analogValue, multiStateValue
-        //testController.readProperty('192.168.0.108', 5, 12, 85);
+        testController.readProperty('192.168.0.108', 5, 12, 85);
         //testController.readProperty('192.168.0.108', 2, 69, 85);
         //testController.readProperty('192.168.0.108', 19, 26, 85);
         //tests for write in the following order: binaryValue, analogValue, multiStateValue
