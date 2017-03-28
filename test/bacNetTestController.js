@@ -190,190 +190,9 @@ BACnetTestController.prototype.handleMessage = function (buffer) {
     var offset = new Offset();
 
     result.bvlc = bvlc.read(buffer, offset);
-    console.log(result);
     result.npdu = npdu.read(buffer, offset);
-    console.log(result);
     result.apdu = apdu.read(buffer, offset);
     console.log(result);
-
-    /*
-    var hexMessage = buffer.toString('hex')
-
-    //BVLC
-    var bvlc = hexMessage.substr(0, 8);
-    var type = bvlc.substr(0, 2);
-    var func = bvlc.substr(2, 2);
-    var len = bvlc.substr(4, 4);
-    console.log('messageLength - ' + this.hexStringToIntNumber(len) + ' byte(s)');
-
-    //NPDU
-    var version = hexMessage.substr(8, 2);
-    var control = hexMessage.substr(10, 2);
-    var controlBinary = this.addLeadingZerosToString(this.hexStringToBinaryString(control), 8);
-    var destinationSpecifier = controlBinary.substr(2, 1);
-    var expectingReply = controlBinary.substr(5, 1);
-
-    var npdu;
-    var apdu;
-
-    if (destinationSpecifier == '0') {
-        npdu = hexMessage.substr(8, 4);
-        apdu = hexMessage.substr(12);
-    } else {
-        npdu = hexMessage.substr(8, 12);
-        apdu = hexMessage.substr(20);
-    }
-
-    //APDU
-    var apduType = apdu.substr(0, 1);
-    var apduTypeInt = this.hexStringToIntNumber(apduType);
-
-    if (apduType == 1) {
-        console.log('UNCONFIRMED-REQUEST');
-        var serviceChoice = apdu.substr(2, 2);
-        var serviceChoiceInt = this.hexStringToIntNumber(serviceChoice);
-        console.log('serviceChoice - ' + serviceChoiceInt);
-        if (serviceChoiceInt == 2) {
-            console.log('unconfirmedCOVNotification');
-            var notification = apdu.substr(4);
-
-            //processId
-            var tagProcessId = this.hexStringToIntNumber(notification.substr(0,2));
-            var processId = this.hexStringToIntNumber(notification.substr(2,2));
-            console.log('processId - ' + processId);
-
-            //device
-            var tagDevice = this.hexStringToIntNumber(notification.substr(4,2));
-            var deviceBinary = this.addLeadingZerosToString(this.hexStringToBinaryString(notification.substr(6,8)), 32);
-            var deviceType = this.binaryStringToIntNumber(deviceBinary.substr(0, 10));
-            console.log('deviceType - ' + deviceType);
-            var deviceId = this.binaryStringToIntNumber(deviceBinary.substr(10, 22));
-            console.log('deviceId - ' + deviceId);
-
-            //object
-            var tagObject = this.hexStringToIntNumber(notification.substr(14,2));
-            var objectBinary = this.addLeadingZerosToString(this.hexStringToBinaryString(notification.substr(16,8)), 32);
-            var objectType = this.binaryStringToIntNumber(objectBinary.substr(0, 10));
-            console.log('objectType - ' + objectType);
-            var objectId = this.binaryStringToIntNumber(objectBinary.substr(10, 22));
-            console.log('objectId - ' + objectId);
-
-            //lifeTime
-            var tagLifeTime = this.hexStringToIntNumber(notification.substr(24,2));
-            var lifeTime = this.hexStringToIntNumber(notification.substr(26,2));
-            console.log('lifeTime - ' + lifeTime);
-
-            //values
-            //presentValue
-
-            //statusFlags
-        } else if (serviceChoiceInt == 8) {
-            console.log('whoIs');
-        }
-    } else if (apduType == 2) {
-        console.log('SIMPLE-ACK');
-        var invokeId = apdu.substr(2, 2);
-        console.log('invokeId - ' + this.hexStringToIntNumber(invokeId));
-        var serviceChoice = apdu.substr(4, 2);
-        var serviceChoiceInt = this.hexStringToIntNumber(serviceChoice);
-        console.log('serviceChoice - ' + serviceChoiceInt);
-        if (serviceChoice == 5) {
-            console.log('SubscribeCOV successful!');
-        } else if (serviceChoiceInt == 15) {
-            console.log('WriteProperty successful!');
-        }
-    } else if (apduType == 3) {
-        console.log('COMPLEX-ACK');
-        var pduFlags = apdu.substr(1, 1);
-        var invokeId = apdu.substr(2, 2);
-        console.log('invokeId - ' + this.hexStringToIntNumber(invokeId));
-        var serviceChoice = apdu.substr(4, 2);
-        var serviceChoiceInt = this.hexStringToIntNumber(serviceChoice);
-        console.log('serviceChoice - ' + serviceChoiceInt);
-
-        if (serviceChoiceInt == 12) {
-            console.log('READ PROPERTY');
-            var readProperty = apdu.substr(6);
-
-            //read object
-            var object = readProperty.substr(0, 10);
-
-            var tagObject = object.substr(0, 2);
-            var tagObjectBinary = this.addLeadingZerosToString(this.hexStringToBinaryString(tagObject), 8);
-            var tagNumberObject = this.binaryStringToIntNumber(tagObjectBinary.substr(0, 4));
-            var tagClassObject = this.binaryStringToIntNumber(tagObjectBinary.substr(4, 1));
-            var tagValueObject = this.binaryStringToIntNumber(tagObjectBinary.substr(5, 3));
-
-            var objectIdentifier = object.substr(2, 8);
-            var objectIdentifierBinary = this.addLeadingZerosToString(this.hexStringToBinaryString(objectIdentifier), 32);
-            var objectType = this.binaryStringToIntNumber(objectIdentifierBinary.substr(0, 10));
-            var instanceNumber = this.binaryStringToIntNumber(objectIdentifierBinary.substr(10, 22));
-            console.log('instanceNumber - ' + instanceNumber);
-
-            //read property
-            var property = readProperty.substr(10, 4);
-
-            var tagProperty = property.substr(0, 2);
-            var tagPropertyBinary = this.addLeadingZerosToString(this.hexStringToBinaryString(tagProperty), 8);
-            var tagNumberProperty = this.binaryStringToIntNumber(tagPropertyBinary.substr(0, 4));
-            var tagClassProperty = this.binaryStringToIntNumber(tagPropertyBinary.substr(4, 1));
-            var tagValueProperty = this.binaryStringToIntNumber(tagPropertyBinary.substr(5, 3));
-
-            var propertyKey = this.hexStringToIntNumber(property.substr(2, 2));
-            console.log('propertyKey - ' + propertyKey);
-
-            //read value
-            var valuePart = readProperty.substr(14);
-
-            //open tag
-            var openTag = valuePart.substr(0, 2);
-
-            //value
-            var value = valuePart.substr(2, valuePart.length - 4);
-
-            var tagValue = value.substr(0, 2);
-            var tagValueBinary = this.addLeadingZerosToString(this.hexStringToBinaryString(tagValue), 8);
-            var tagNumberValue = this.binaryStringToIntNumber(tagValueBinary.substr(0, 4));
-            var tagClassValue = this.binaryStringToIntNumber(tagValueBinary.substr(4, 1));
-            var tagValueValue = this.binaryStringToIntNumber(tagValueBinary.substr(5, 3));
-
-            var valueValue = value.substr(2);
-
-            var propertyValue;
-
-            if (tagNumberValue == 2) {
-                buf = Buffer.from(valueValue, 'hex');
-                propertyValue = buf.readUInt8(0);
-                console.log('propertyValue - (Unsigned Int) ' + propertyValue);
-            } else if (tagNumberValue == 4) {
-                buf = Buffer.from(valueValue, 'hex');
-                propertyValue = buf.readFloatBE(0);
-                console.log('propertyValue - (Real) ' + propertyValue);
-            } else if (tagNumberValue == 9) {
-                console.log('Enumerated');
-                propertyValue = this.hexStringToIntNumber(valueValue);
-                console.log('propertyValue - (Enumerated) ' + propertyValue);
-            } else {
-                console.log('Unsupported DataType - Please look up which data type corresponds to the following info');
-                console.log('tagNumberValue - ' + tagNumberValue);
-                console.log('tagClassValue - ' + tagClassValue);
-                console.log('tagValueValue - ' + tagValueValue);
-                propertyValue = valueValue;
-                console.log('propertyValue - (Needs to be converted) ' + propertyValue);
-            }
-
-            //close tag
-            var closeTag = valuePart.substr(valuePart.length - 2, 2);
-        }
-    } else if (apduType == 5) {
-        console.log('ERROR');
-        //TODO: Implement some errors
-    } else {
-        console.log('Unsupported APDU Type');
-        console.log('APDU type - ' + apduTypeInt);
-    }
-    */
-
 };
 
 BACnetTestController.prototype.whoIs = function (address) {
@@ -575,9 +394,17 @@ APDU.prototype.writeValue = function (buffer, offset, context, dataType, propert
     //tag indicating dataType of value
     apdu.writeTag(buffer, offset, dataType, 0, len);
     //value
-    if (dataType == 4) {
+    if (dataType == 2) {
+        //unsigned int
+        buffer.writeUInt8(propertyValue, offset.up(len));
+    } else if (dataType == 4) {
+        //real/float
         buffer.writeFloatBE(propertyValue, offset.up(len));
+    } else if (dataType == 9) {
+        //enumerated
+        buffer.writeUInt8(propertyValue, offset.up(len));
     } else {
+        //unsupported datatype
         buffer.writeUInt8(propertyValue, offset.up(len));
     }
     //closeTag
@@ -596,10 +423,26 @@ APDU.prototype.read = function (buffer, offset, result) {
 
     if (apdu.type == 1) {
         console.log('UNCONFIRMED REQUEST');
-
+        apdu.serviceChoice = buffer.readUInt8(offset.up());
+        if (apdu.serviceChoice == 2) {
+            console.log('unconfirmedCOVNotification');
+            var unconfirmedCOVNotification = {};
+            unconfirmedCOVNotification.processId = this.readTaggedParameter(buffer, offset);
+            unconfirmedCOVNotification.device = this.readObject(buffer, offset);
+            unconfirmedCOVNotification.object = this.readObject(buffer, offset);
+            unconfirmedCOVNotification.lifeTime = this.readTaggedParameter(buffer, offset);
+            unconfirmedCOVNotification.listOfValues = this.readListOfValues(buffer, offset);
+            apdu.unconfirmedCOVNotification = unconfirmedCOVNotification;
+        }
     } else if (apdu.type == 2) {
         console.log('SIMPLE ACK');
-
+        apdu.invokeId = buffer.readUInt8(offset.up());
+        apdu.serviceChoice = buffer.readUInt8(offset.up());
+        if (apdu.serviceChoice == 5) {
+            console.log('successfully subscribed');
+        } else if (apdu.serviceChoice == 12) {
+            console.log('write property successful');
+        }
     } else if (apdu.type == 3) {
         console.log('COMPLEX ACK');
         apdu.pduFlags = {};
@@ -627,7 +470,7 @@ APDU.prototype.read = function (buffer, offset, result) {
 APDU.prototype.readTag = function (buffer, offset) {
     var tag = {};
     var byte = buffer.readUInt8(offset.up());
-    tag.contextTagNumber = byte >> 4;
+    tag.tagNumber = byte >> 4;
     tag.tagClass = (byte >> 3) & 0x01;
     tag.tagValue = byte & 0x07;
     return tag;
@@ -645,22 +488,71 @@ APDU.prototype.readObject = function (buffer, offset) {
 
 APDU.prototype.readProperty = function (buffer, offset) {
     var property = {};
+    property.tag = this.readTag(buffer, offset);
+    property.propertyKey = buffer.readUInt8(offset.up());
+    console.log(property);
     return property;
 };
 
 APDU.prototype.readValue = function (buffer, offset) {
     var value = {};
+    var openTag = this.readTag(buffer, offset);
+    value.tag = this.readTag(buffer, offset);
+    value.propertyValue;
+
+    if (value.tag.tagNumber == 2) {
+        //unsigned int
+        value.propertyValue = buffer.readUInt8(offset.up());
+    } else if (value.tag.tagNumber == 4) {
+        //real/float
+        value.propertyValue = buffer.readFloatBE(offset.up(4));
+    } else if (value.tag.tagNumber == 8) {
+        //bit string
+        value.unusedBits = buffer.readUInt8(offset.up());
+        var bitString = buffer.readUInt8(offset.up());
+        //TODO: look up which exact bit corresponds to which status flag. for now it is in order the first four bits from the left
+        value.inAlarm = bitString >> 7;
+        value.fault = (bitString >> 6) & 0x01;
+        value.overridden = (bitString >> 5) & 0x01;
+        value.outOfService = (bitString >> 4) & 0x01;
+    } else if (value.tag.tagNumber == 9) {
+        //enum/binary
+        value.propertyValue = buffer.readUInt8(offset.up());
+    } else {
+        console.log('Unsupported DataType - Please look up which data type corresponds to the following info');
+        console.log('tagNumber - ' + value.tag.tagNumber);
+        console.log('tagClass - ' + value.tag.tagClass);
+        console.log('tagValueValue - ' + value.tag.tagValue);
+        value.propertyValue = buffer[offset.up()];
+        console.log('propertyValue - (Needs to be converted) ' + value.propertyValue);
+    }
+
+    var closeTag = this.readTag(buffer, offset);
+    console.log(value);
     return value;
+};
+
+APDU.prototype.readListOfValues = function (buffer, offset) {
+    var listOfValues = {};
+    var openTag = this.readTag(buffer, offset);
+    listOfValues.property = this.readProperty(buffer, offset);
+    listOfValues.propertyValue = this.readValue(buffer, offset);
+    listOfValues.statusFlags = this.readProperty(buffer, offset);
+    listOfValues.statusFlagsValue = this.readValue(buffer, offset);
+    var closeTag = this.readTag(buffer, offset);
+    return listOfValues;
 };
 
 APDU.prototype.readTaggedParameter = function (buffer, offset) {
     var taggedParam = {};
+    taggedParam.tag = this.readTag(buffer, offset);
+    taggedParam.value = buffer.readUInt8(offset.up());
+    console.log(taggedParam);
     return taggedParam;
 };
 
 function Offset(value) {
     this.offset = 0;
-
     if (value != undefined) {
         this.offset = value;
     }
@@ -707,12 +599,12 @@ testController.initialize(SERVER_PORT)
     .then(function() {
         //testController.whoIs();
         //tests for read in the following order: binaryValue, analogValue, multiStateValue
-        testController.readProperty('192.168.0.108', 5, 12, 85);
+        //testController.readProperty('192.168.0.108', 5, 12, 85);
         //testController.readProperty('192.168.0.108', 2, 69, 85);
         //testController.readProperty('192.168.0.108', 19, 26, 85);
         //tests for write in the following order: binaryValue, analogValue, multiStateValue
         //testController.writeProperty('192.168.0.108', 5, 12, 85, 9, 0, 16);
-        //testController.writeProperty('192.168.0.108', 2, 69, 85, 4, 14.55, 16);
+        //testController.writeProperty('192.168.0.108', 2, 69, 85, 4, 16, 16);
         //testController.writeProperty('192.168.0.108', 19, 26, 85, 2, 4, 16);
         //tests for subscribe
         //testController.subscribeCOV('192.168.0.108', 5, 12, 1, 0, 0);

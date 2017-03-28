@@ -6,6 +6,7 @@ module.exports = {
         {
             "plugin": "bacnet/bacNetDevice",
             "actors": [
+                /*,
                 {
                     "id": "binaryInput1",
                     "label": "Binary Input 1",
@@ -33,7 +34,7 @@ module.exports = {
                         "description": "Wind alarm",
                         "pollingPeriod": 60
                     }
-                }/*,
+                },
                 {
                     "id": "analogInput1",
                     "label": "Analog Input 1",
@@ -47,7 +48,7 @@ module.exports = {
                         "description": "Displayed setpoint feedback (heat/cool average)",
                         "pollingPeriod": 10
                     }
-                },
+                },*/
                 {
                     "id": "analogValue1",
                     "label": "Analog Value 1",
@@ -60,10 +61,9 @@ module.exports = {
                         "objectName": "spExt",
                         "description": "External setpoint write",
                         "minValue": 0,
-                        "maxValue": 30,
-                        "pollingPeriod": 10
+                        "maxValue": 30
                     }
-                }*/
+                }
             ],
             "sensors": [],
             "services": [],

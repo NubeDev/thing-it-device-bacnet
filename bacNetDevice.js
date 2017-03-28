@@ -109,11 +109,15 @@ function BacNet() {
             this.logDebug("Starting BACnet in non-simulated mode.");
             //this.logDebug(this.configuration);
 
-            this.adapter = BacNetAdapter.create(this);
-            //TODO: where is the port configured or is this part of the ip address?
-            this.adapter.initialize(47808, this.configuration.ipAddress);
-
-            deferred.resolve();
+            this.adapter = BacNetAdapter.create();
+            this.adapter.initialize(this.configuration.ipAddress)
+                .then(function () {
+                    deferred.resolve();
+                }.bind(this))
+                .fail(function (e) {
+                    this.logError(e);
+                    deferred.reject(e);
+                }.bind(this));
         }
 
         return deferred.promise;
