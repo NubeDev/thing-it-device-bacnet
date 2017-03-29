@@ -4,6 +4,10 @@ var BacNetAdapter = require('../lib/bacNetAdapter');
 var testAdapter = BacNetAdapter.create();
 testAdapter.initialize('192.168.0.108')
     .then(function () {
+        testAdapter.writeProperty('AnalogValue', 69, 'presentValue', Math.random() * 30)
+            .then(function (a) {
+                console.log(a);
+            });
         //tests for read in the following order: binaryValue, analogValue, multiStateValue
         /*
         testAdapter.readProperty('BinaryValue', 12, 'presentValue')
@@ -38,6 +42,7 @@ testAdapter.initialize('192.168.0.108')
         */
         //tests for subscribe
 
+        /*
         testAdapter.subscribeCOV('BinaryValue', 12, function (a) {
             console.log('a notification arrived');
             console.log(a);
@@ -57,4 +62,5 @@ testAdapter.initialize('192.168.0.108')
         setTimeout(function () {
             testAdapter.writeProperty('BinaryValue', 12, 'presentValue', 1);
         }.bind(this), 30000);
+        */
     }.bind(this));

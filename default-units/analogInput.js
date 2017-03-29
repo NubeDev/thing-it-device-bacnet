@@ -59,14 +59,6 @@ module.exports = {
                     id: "string"
                 },
                 defaultValue: ""
-            },
-            {
-                label: "Polling Period",
-                id: "pollingPeriod",
-                type: {
-                    id: "integer"
-                },
-                defaultValue: 60
             }
         ]
     },
@@ -87,6 +79,7 @@ function AnalogInput() {
     AnalogInput.prototype.start = function () {
         this.logDebug("ANALOG INPUT START");
         var deferred = q.defer();
+        this.isSubscribed = false;
 
         this.logDebug("ANALOG INPUT START - change state");
         this.state = {
@@ -141,11 +134,24 @@ function AnalogInput() {
         } else {
             this.logDebug("ANALOG INPUT START - in normal mode");
 
-            this.interval = setInterval(function () {
-                this.update();
-            }.bind(this), this.configuration.pollingPeriod * 1000);
+            this.logDebug("ANALOG INPUT START - trying to subscribe to updates for present value");
+            this.device.adapter.subscribeCOV(this.configuration.objectType, this.configuration.objectId, function(notification) {
+                this.logDebug('received notification');
 
-            deferred.resolve();
+                this.state.presentValue = notification.propertyValue;
+                this.logDebug("presentValue: " + this.state.presentValue);
+                this.logDebug("State", this.state);
+                this.publishStateChange();
+            }.bind(this))
+                .then(function(result) {
+                    this.logDebug('successfully subscribed');
+                    this.isSubscribed = true;
+                    deferred.resolve();
+                }.bind(this))
+                .fail(function(result) {
+                    this.logDebug('it did not work');
+                    deferred.reject('it did not work');
+                }.bind(this));
         }
 
         return deferred.promise;
@@ -168,11 +174,16 @@ function AnalogInput() {
             deferred.resolve();
         } else {
             this.logDebug("ANALOG INPUT STOP - trying to unsubscribe from updates for present value");
-            if (this.interval) {
-                clearInterval(this.interval);
-            }
 
-            deferred.resolve();
+            this.device.adapter.unsubscribeCOV(this.configuration.objectType, this.configuration.objectId)
+                .then(function(result) {
+                    this.logDebug('successfully unsubscribed');
+                    deferred.resolve();
+                }.bind(this))
+                .fail(function(result) {
+                    this.logDebug('it did not work');
+                    deferred.reject('it did not work');
+                }.bind(this));
         }
 
         return deferred.promise;
@@ -206,13 +217,9 @@ function AnalogInput() {
 
             deferred.resolve();
         } else {
-            this.device.adapter.readProperty(this.configuration.objectType, this.configuration.objectId, 'present-value')
+            this.device.adapter.readProperty(this.configuration.objectType, this.configuration.objectId, 'presentValue')
                 .then(function(result) {
-                    if (Array.isArray(result.propertyValue)) {
-                        this.state.presentValue = result.propertyValue[0];
-                    } else {
-                        this.state.presentValue = result.propertyValue;
-                    }
+                    this.state.presentValue = result.propertyValue;
                     this.logDebug("presentValue: " + this.state.presentValue);
                     this.logDebug("State", this.state);
                     this.publishStateChange();

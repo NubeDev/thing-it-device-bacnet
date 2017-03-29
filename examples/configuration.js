@@ -6,7 +6,6 @@ module.exports = {
         {
             "plugin": "bacnet/bacNetDevice",
             "actors": [
-                /*,
                 {
                     "id": "binaryInput1",
                     "label": "Binary Input 1",
@@ -17,8 +16,7 @@ module.exports = {
                         "objectId": "13",
                         "objectType": "BinaryValue",
                         "objectName": "alRainFb",
-                        "description": "Rain alarm",
-                        "pollingPeriod": 60
+                        "description": "Rain alarm"
                     }
                 },
                 {
@@ -31,8 +29,7 @@ module.exports = {
                         "objectId": "12",
                         "objectType": "BinaryValue",
                         "objectName": "alWindFb",
-                        "description": "Wind alarm",
-                        "pollingPeriod": 60
+                        "description": "Wind alarm"
                     }
                 },
                 {
@@ -45,10 +42,9 @@ module.exports = {
                         "objectId": "73",
                         "objectType": "AnalogValue",
                         "objectName": "spDisplayFb",
-                        "description": "Displayed setpoint feedback (heat/cool average)",
-                        "pollingPeriod": 10
+                        "description": "Displayed setpoint feedback (heat/cool average)"
                     }
-                },*/
+                },
                 {
                     "id": "analogValue1",
                     "label": "Analog Value 1",

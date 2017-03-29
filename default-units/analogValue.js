@@ -126,7 +126,7 @@ function AnalogValue() {
                 this.publishStateChange();
 
                 if (this.state.alarmValue == true) {
-                    this.logDebug("ANALOG INPUT SIMULATION - publish event because of alarm");
+                    this.logDebug("ANALOG VALUE SIMULATION - publish event because of alarm");
                     this.device.publishEvent('Warning', {details: 'Something is not normal here.'});
                 }
             }.bind(this), 17000));
@@ -138,10 +138,10 @@ function AnalogValue() {
                 this.publishStateChange();
 
                 if (this.state.outOfService == true) {
-                    this.logDebug("ANALOG INPUT SIMULATION - change operational state to notReachable");
+                    this.logDebug("ANALOG VALUE SIMULATION - change operational state to notReachable");
                     this.operationalState = {state: 'notReachable'};
                 } else {
-                    this.logDebug("ANALOG INPUT SIMULATION - change operational state to normal");
+                    this.logDebug("ANALOG VALUE SIMULATION - change operational state to normal");
                     this.operationalState = {state: 'normal'};
                 }
                 this.publishOperationalStateChange();

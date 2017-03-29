@@ -59,14 +59,6 @@ module.exports = {
                     id: "string"
                 },
                 defaultValue: ""
-            },
-            {
-                label: "Polling Period",
-                id: "pollingPeriod",
-                type: {
-                    id: "integer"
-                },
-                defaultValue: 60
             }
         ]
     },
@@ -87,6 +79,7 @@ function BinaryInput() {
     BinaryInput.prototype.start = function () {
         this.logDebug("BINARY INPUT START");
         var deferred = q.defer();
+        this.isSubscribed = false;
 
         this.logDebug("BINARY INPUT START - change state");
         this.state = {
@@ -139,11 +132,27 @@ function BinaryInput() {
         } else {
             this.logDebug("BINARY INPUT START - in normal mode");
 
-            this.interval = setInterval(function () {
-                this.update();
-            }.bind(this), this.configuration.pollingPeriod * 1000);
-
-            deferred.resolve();
+            this.logDebug("BINARY INPUT START - trying to subscribe to updates for present value");
+            this.device.adapter.subscribeCOV(this.configuration.objectType, this.configuration.objectId, function(notification) {
+                this.logDebug('received notification');
+                if (notification.propertyValue == 1) {
+                    this.state.presentValue = true;
+                } else {
+                    this.state.presentValue = false;
+                }
+                this.logDebug("presentValue: " + this.state.presentValue);
+                this.logDebug("State", this.state);
+                this.publishStateChange();
+            }.bind(this))
+                .then(function(result) {
+                    this.logDebug('successfully subscribed');
+                    this.isSubscribed = true;
+                    deferred.resolve();
+                }.bind(this))
+                .fail(function(result) {
+                    this.logDebug('it did not work');
+                    deferred.reject('it did not work');
+                }.bind(this));
         }
 
         return deferred.promise;
@@ -166,14 +175,17 @@ function BinaryInput() {
             deferred.resolve();
         } else {
             this.logDebug("BINARY INPUT STOP - trying to unsubscribe from updates for present value");
-            if (this.interval) {
-                clearInterval(this.interval);
-            }
 
-            deferred.resolve();
+            this.device.adapter.unsubscribeCOV(this.configuration.objectType, this.configuration.objectId)
+                .then(function(result) {
+                    this.logDebug('successfully unsubscribed');
+                    deferred.resolve();
+                }.bind(this))
+                .fail(function(result) {
+                    this.logDebug('it did not work');
+                    deferred.reject('it did not work');
+                }.bind(this));
         }
-
-
 
         return deferred.promise;
     };
@@ -206,20 +218,13 @@ function BinaryInput() {
 
             deferred.resolve();
         } else {
-            this.device.adapter.readProperty(this.configuration.objectType, this.configuration.objectId, 'present-value')
+            this.device.adapter.readProperty(this.configuration.objectType, this.configuration.objectId, 'presentValue')
                 .then(function(result) {
-                    var propertyValue;
-                    if (Array.isArray(result.propertyValue)) {
-                        propertyValue = result.propertyValue[0];
-                    } else {
-                        propertyValue = result.propertyValue;
-                    }
-                    if (propertyValue == 'active') {
+                    if (result.propertyValue == 1) {
                         this.state.presentValue = true;
                     } else {
                         this.state.presentValue = false;
                     }
-
                     this.logDebug("presentValue: " + this.state.presentValue);
                     this.logDebug("State", this.state);
                     this.publishStateChange();

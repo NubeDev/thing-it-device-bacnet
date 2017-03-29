@@ -459,7 +459,7 @@ APDU.prototype.read = function (buffer, offset, result) {
             readProperty.propertyValue = this.readValue(buffer, offset);
             apdu.readProperty = readProperty;
         }
-    } else if (result.apdu.type == 5) {
+    } else if (apdu.type == 5) {
         console.log('ERROR');
     } else {
         console.log('APDU TYPE ' + result.apdu.type + 'not handled yet.')
@@ -597,7 +597,7 @@ var testController = new BACnetTestController();
 //testController.initialize(SERVER_PORT, 'localhost');
 testController.initialize(SERVER_PORT)
     .then(function() {
-        //testController.whoIs();
+        testController.whoIs();
         //tests for read in the following order: binaryValue, analogValue, multiStateValue
         //testController.readProperty('192.168.0.108', 5, 12, 85);
         //testController.readProperty('192.168.0.108', 2, 69, 85);
