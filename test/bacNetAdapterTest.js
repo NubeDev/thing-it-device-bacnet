@@ -1,30 +1,45 @@
 var BacNetAdapter = require('../lib/bacNetAdapter');
 
-/*
 var priva = BacNetAdapter.create();
 priva.initialize('192.168.5.192')
     .then(function () {
-        priva.readProperty('BinaryInput', 1, 'presentValue')
+        /*
+        priva.readProperty('BinaryValue', 11, 'presentValue')
+            .then(function (a) {
+                console.log(a);
+            });
+        */
+
+        /*
+        for (i = 1; i < 201; i++) {
+            priva.subscribeCOV('AnalogValue', i, function (a) {
+                console.log('a notification arrived');
+                console.log(a);
+            }).then(function (a) {
+                console.log('successfully subscribed');
+                console.log(a);
+            });
+        }
+
+        */
+
+        //Example setting the Ventil Maximum Regelbereich
+        priva.writeProperty('AnalogValue', 112, 'presentValue', 80)
             .then(function (a) {
                 console.log(a);
             });
 
-         priva.writeProperty('BinaryInput', 1, 'presentValue', 0)
-            .then(function (a) {
-                console.log(a);
-            });
 
-         priva.subscribeCOV('BinaryInput', 1, function (a) {
-            console.log('a notification arrived');
-            console.log(a);
-         }).then(function (a) {
-            console.log('successfully subscribed');
-            console.log(a);
-         });
 
-        //priva.unsubscribeCOV('BinaryInput', 1);
+
+        /*
+        priva.unsubscribeCOV('AnalogValue', 31);
+        */
+
     }.bind(this));
-*/
+
+
+/*
 var loytec = BacNetAdapter.create();
 loytec.initialize('192.168.5.104')
     .then(function () {
@@ -62,7 +77,7 @@ loytec.initialize('192.168.5.104')
 
         //tests for subscribe
 
-        /*
+
          loytec.subscribeCOV('BinaryValue', 12, function (a) {
             console.log('a notification arrived');
             console.log(a);
@@ -82,5 +97,6 @@ loytec.initialize('192.168.5.104')
          setTimeout(function () {
             loytec.writeProperty('BinaryValue', 12, 'presentValue', 1);
          }.bind(this), 30000);
-         */
+
     }.bind(this));
+*/
