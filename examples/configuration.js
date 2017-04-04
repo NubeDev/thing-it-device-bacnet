@@ -68,7 +68,7 @@ module.exports = {
             "label": "BACnet 1",
             "configuration": {
                 //"simulated": true,
-                "ipAddress": "192.168.0.108",
+                "ipAddress": "192.168.5.104",
                 "bacNetId": "1",
                 "deviceId": "1"
             }
