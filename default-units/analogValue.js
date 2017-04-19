@@ -114,6 +114,7 @@ function AnalogValue() {
             this.simulationIntervals = [];
 
             this.simulationIntervals.push(setInterval(function () {
+                //TODO calculate value within min/max range
                 if (Math.random() > 0.6) {
                     this.setPresentValue(Math.random() * 100);
                 }
@@ -166,8 +167,8 @@ function AnalogValue() {
                     deferred.resolve();
                 }.bind(this))
                 .fail(function(result) {
-                    this.logDebug('it did not work');
-                    deferred.reject('it did not work');
+                    this.logDebug('subscription failed');
+                    deferred.reject('subscription failed');
                 }.bind(this));
         }
 
