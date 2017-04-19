@@ -1,4 +1,4 @@
-angular.module('testApp', [])
+angular.module('testApp', ['ThingItMobile.PluginDirectives'])
     .controller('TestController', function () {
         this.binary = {
             _state: {
@@ -10,14 +10,25 @@ angular.module('testApp', [])
 
         this.analog = {
             _state: {
-                presentValue: 77.77,
+                presentValue: 21.45,
                 alarmValue: true,
-                outOfService: true
+                outOfService: false
             },
             _configuration: {
-                minValue: 0.0,
-                maxValue: 100.0
+                minValue: 10.0,
+                maxValue: 30.0
+            },
+
+            changeValue: function (parameters) {
+                console.log(parameters);
             }
         };
+
+        this.panel = {
+            callActorService: function(controllerObject, controllerFunction, valueToSet) {
+                console.log('Hellooooooo!!!!!');
+                console.log(controllerObject, controllerFunction, valueToSet);
+            },
+        }
 
     });

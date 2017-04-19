@@ -4,32 +4,40 @@ var bacNetDeviceAdapter = BacNetAdapter.create();
 //bacNetDeviceAdapter.initialize('192.168.5.192')
 bacNetDeviceAdapter.initialize('192.168.0.185')
     .then(function () {
+
+
+        bacNetDeviceAdapter.readProperty('AnalogValue', 20, 'presentValue')
+            .then(function (a) {
+                console.log(a);
+            });
+
         /*
-         bacNetDeviceAdapter.readProperty('BinaryValue', 11, 'presentValue')
+         for (i = 20; i < 21; i++) {
+         bacNetDeviceAdapter.subscribeCOV('AnalogValue', i, function (a) {
+         console.log('bacNetAdapterTest: Change of Value: "'
+         + a.propertyValue + '" value for propertyId ' + a.propertyId
+         + ' from objectId ' + a.objectId + ' of objectType ' + a.objectType);
+         //console.log(a);
+         })
          .then(function (a) {
-         console.log(a);
-         });
+         console.log('bacNetAdapterTest: Successfully subscribed to COV for object id ' + a.objectId
+         + ' of objectType ' + a.objectType);
+         //console.log(a);
+         })
+         .fail(function (message) {
+         console.log('bacNetAdapterTest: Error subscribing to COV: ' + message)
+         })
+         .done(function (message){
+         console.log("bacNetAdapterTest: Done subscribing.");
+         })
+         }
          */
 
-        for (i = 20; i < 21; i++) {
-            bacNetDeviceAdapter.subscribeCOV('AnalogValue', i, function (a) {
-                console.log('bacNetAdapterTest: Change of Value: "'
-                    + a.propertyValue + '" value for propertyId ' + a.propertyId
-                    + ' from objectId ' + a.objectId + ' of objectType ' + a.objectType);
-                //console.log(a);
-            })
-                .then(function (a) {
-                    console.log('bacNetAdapterTest: Successfully subscribed to COV for object id ' + a.objectId
-                        + ' of objectType ' + a.objectType);
-                    //console.log(a);
-                })
-                .fail(function (message) {
-                    console.log('bacNetAdapterTest: Error subscribing to COV: ' + message)
-                })
-                .done(function (message){
-                    console.log("bacNetAdapterTest: Done subscribing.");
-                })
-        }
+        /*
+         bacNetDeviceAdapter.readProperty('Device', 1, 'objectList').then(function (result) {
+         console.log(result);
+         });
+         */
 
 
         /*
