@@ -3,7 +3,7 @@ angular.module('testApp', ['ThingItMobile.PluginDirectives'])
         this.binary = {
             _state: {
                 presentValue: false,
-                alarmValue: true,
+                alarmValue: false,
                 outOfService: true
             }
         };

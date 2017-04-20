@@ -17,18 +17,21 @@ module.exports = {
                     id: "string"
                 },
                 defaultValue: ""
-            },
-
-            {
+            }, {
+                label: "Port",
+                id: "port",
+                type: {
+                    id: "integer"
+                },
+                defaultValue: ""
+            }, {
                 label: "BACnet-ID",
                 id: "bacNetId",
                 type: {
                     id: "string"
                 },
                 defaultValue: ""
-            },
-
-            {
+            }, {
                 label: "Device-ID",
                 id: "deviceId",
                 type: {
@@ -62,8 +65,8 @@ function BacNetDiscovery() {
         this.objects = [];
 
         if (this.node.isSimulated()) {
-            this.timer = setInterval(function () {}.bind(this), 20000);
-
+            this.timer = setInterval(function () {
+            }.bind(this), 20000);
 
 
         } else {
@@ -98,26 +101,43 @@ function BacNet() {
      */
     BacNet.prototype.start = function () {
         var deferred = q.defer();
-        this.logDebug("****************************");
-        this.logDebug("Simulated: " + this.isSimulated());
 
-        if (this.isSimulated()) {
-            this.logDebug("Starting BACnet in simulated mode.");
+        try {
+            this.logDebug("Simulated: " + this.isSimulated());
 
-            deferred.resolve();
-        } else {
-            this.logDebug("Starting BACnet in non-simulated mode.");
-            //this.logDebug(this.configuration);
+            if (this.isSimulated()) {
+                this.logDebug("Starting BACnet in simulated mode.");
 
-            this.adapter = BacNetAdapter.create();
-            this.adapter.initialize(this.configuration.ipAddress)
-                .then(function () {
-                    deferred.resolve();
-                }.bind(this))
-                .fail(function (e) {
-                    this.logError(e);
-                    deferred.reject(e);
-                }.bind(this));
+                deferred.resolve();
+            } else {
+                this.logDebug("Starting BACnet in non-simulated mode.");
+                //this.logDebug(this.configuration);
+
+                var port = parseInt(this.configuration.port);
+
+                if ((!port) || (port < 1024) || (port > 65536)) {
+                    this.logDebug('Configured port "' + this.configuration.port
+                        + '" is out of range (1024-65536). Defaulting to port '
+                        + BacNetAdapter.BACNET_DEFAULT_PORT + '.');
+                    this.configuration.port = BacNetAdapter.BACNET_DEFAULT_PORT;
+                } else {
+                    this.configuration.port = port;
+                }
+
+                this.adapter = BacNetAdapter.create();
+                this.adapter.initialize(this.configuration.ipAddress, this.configuration.port)
+                    .then(function () {
+                        deferred.resolve();
+                    }.bind(this))
+                    .fail(function (e) {
+                        this.logError(e);
+                        deferred.reject(e);
+                    }.bind(this));
+            }
+
+        } catch (e) {
+            this.logError('Error during start.', e);
+            deferred.reject(e);
         }
 
         return deferred.promise;
@@ -132,7 +152,14 @@ function BacNet() {
         if (this.isSimulated()) {
             this.logDebug("Stopping BACnet in simulated mode.");
         } else {
-            this.adapter.stop();
+            this.adapter.release(this.configuration.ipAddress, this.configuration.port)
+                .then(function () {
+                    deferred.resolve();
+                }.bind(this))
+                .fail(function (e) {
+                    this.logError(e);
+                    deferred.reject(e);
+                }.bind(this));
         }
 
         deferred.resolve();
