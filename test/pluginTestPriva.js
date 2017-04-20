@@ -67,6 +67,7 @@ describe('[thing-it] BACnet Device', function () {
     });
 
 
+/*
     describe('Stop Configuration', function () {
         this.timeout(10000);
 
@@ -78,4 +79,5 @@ describe('[thing-it] BACnet Device', function () {
             testDriver.stop();
         });
     });
+*/
 });

@@ -90,6 +90,7 @@ module.exports = {
 };
 
 var q = require('q');
+const OBJECT_TYPE = 'AnalogValue';
 
 /**
  *
@@ -154,10 +155,10 @@ function AnalogValue() {
 
             deferred.resolve();
         } else {
-            this.logDebug("ANALOG VALUE START - in normal mode");
-
-            this.logDebug("ANALOG VALUE START - trying to subscribe to updates for present value");
-            this.device.adapter.subscribeCOV(this.configuration.objectType, this.configuration.objectId, function (notification) {
+            this.logDebug("Starting in non-simulated mode");
+            this.logDebug("Subscribing to COV");
+            this.device.adapter.subscribeCOV(OBJECT_TYPE, this.configuration.objectId,
+                this.device.configuration.ipAddress, this.device.configuration.port, function (notification) {
                 this.logDebug('received notification');
 
                 this.state.presentValue = notification.propertyValue;
@@ -166,13 +167,15 @@ function AnalogValue() {
                 this.publishStateChange();
             }.bind(this))
                 .then(function (result) {
-                    this.logDebug('successfully subscribed');
+                    this.logDebug('Successfully subscribed to COV of presentValue on object ' + this.configuration.objectId);
                     this.isSubscribed = true;
                     deferred.resolve();
                 }.bind(this))
                 .fail(function (result) {
-                    this.logDebug('subscription failed');
-                    deferred.reject('subscription failed');
+                    var errorMessage = 'Could not subscribe to COV of presentValue on object '
+                        + this.configuration.objectId + ': ' + result;
+                    this.logError(errorMessage);
+                    deferred.reject(errorMessage);
                 }.bind(this));
         }
 
@@ -183,7 +186,7 @@ function AnalogValue() {
      *
      */
     AnalogValue.prototype.stop = function () {
-        this.logDebug("ANALOG VALUE STOP");
+        this.logDebug('Stopping.');
         var deferred = q.defer();
 
         if (this.isSimulated()) {
@@ -192,18 +195,21 @@ function AnalogValue() {
                     clearInterval(this.simulationIntervals[interval]);
                 }
             }
+
             deferred.resolve();
         } else {
-            this.logDebug("ANALOG VALUE STOP - trying to unsubscribe from updates for present value");
+            this.logDebug("Attempting to un-subscribe from updates for present value.");
 
-            this.device.adapter.unsubscribeCOV(this.configuration.objectType, this.configuration.objectId)
+            this.device.adapter.unsubscribeCOV(OBJECT_TYPE, this.configuration.objectId,
+                this.device.configuration.ipAddress, this.device.configuration.port)
                 .then(function (result) {
-                    this.logDebug('successfully unsubscribed');
+                    this.logDebug('Successfully un-subscribed to COV of presentValue on object ' + this.configuration.objectId);
                     deferred.resolve();
                 }.bind(this))
                 .fail(function (result) {
-                    this.logDebug('it did not work');
-                    deferred.reject('it did not work');
+                    var errorMessage = 'Could not un-subscribe to COV of presentValue on object '
+                        + this.configuration.objectId + ': ' + result;
+                    deferred.reject(new Error(errorMessage));
                 }.bind(this));
         }
 
@@ -238,7 +244,8 @@ function AnalogValue() {
 
             deferred.resolve();
         } else {
-            this.device.adapter.readProperty(this.configuration.objectType, this.configuration.objectId, 'presentValue')
+            this.device.adapter.readProperty(OBJECT_TYPE, this.configuration.objectId, 'presentValue',
+                this.device.configuration.ipAddress, this.device.configuration.port)
                 .then(function (result) {
                     this.state.presentValue = result.propertyValue;
                     this.logDebug("presentValue: " + this.state.presentValue);
@@ -273,7 +280,8 @@ function AnalogValue() {
 
             deferred.resolve();
         } else {
-            this.device.adapter.writeProperty(this.configuration.objectType, this.configuration.objectId, 'presentValue', presentValue)
+            this.device.adapter.writeProperty(OBJECT_TYPE, this.configuration.objectId, 'presentValue', presentValue,
+                this.device.configuration.ipAddress, this.device.configuration.port)
                 .then(function (result) {
                     if (!this.isSubscribed) {
                         this.state.presentValue = result.propertyValue;

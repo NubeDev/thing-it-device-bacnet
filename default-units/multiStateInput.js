@@ -129,7 +129,8 @@ function MultiStateInput() {
         } else {
             this.logDebug("Starting in non-simulated mode");
             this.logDebug("Subscribing to COV");
-            this.device.adapter.subscribeCOV('MultiStateInput', this.configuration.objectId, function(notification) {
+            this.device.adapter.subscribeCOV(OBJECT_TYPE, this.configuration.objectId,
+                this.device.configuration.ipAddress, this.device.configuration.port, function (notification) {
                 this.logDebug('received notification');
 
                 this.state.presentValue = notification.propertyValue;
@@ -157,6 +158,7 @@ function MultiStateInput() {
      *
      */
     MultiStateInput.prototype.stop = function () {
+        this.logDebug('Stopping.');
         var deferred = q.defer();
 
         if (this.isSimulated()) {
@@ -165,21 +167,21 @@ function MultiStateInput() {
                     clearInterval(this.simulationIntervals[interval]);
                 }
             }
+
             deferred.resolve();
         } else {
             this.logDebug("Attempting to un-subscribe from updates for present value.");
 
-            this.device.adapter.unsubscribeCOV(OBJECT_TYPE, this.configuration.objectId)
-                .then(function(result) {
+            this.device.adapter.unsubscribeCOV(OBJECT_TYPE, this.configuration.objectId,
+                this.device.configuration.ipAddress, this.device.configuration.port)
+                .then(function (result) {
                     this.logDebug('Successfully un-subscribed to COV of presentValue on object ' + this.configuration.objectId);
-                    this.isSubscribed = false;
                     deferred.resolve();
                 }.bind(this))
-                .fail(function(result) {
+                .fail(function (result) {
                     var errorMessage = 'Could not un-subscribe to COV of presentValue on object '
                         + this.configuration.objectId + ': ' + result;
-                    this.logError(errorMessage);
-                    deferred.reject(errorMessage);
+                    deferred.reject(new Error(errorMessage));
                 }.bind(this));
         }
 
@@ -214,8 +216,9 @@ function MultiStateInput() {
 
             deferred.resolve();
         } else {
-            this.device.adapter.readProperty(OBJECT_TYPE, this.configuration.objectId, 'presentValue')
-                .then(function(result) {
+            this.device.adapter.readProperty(OBJECT_TYPE, this.configuration.objectId, 'presentValue',
+                this.device.configuration.ipAddress, this.device.configuration.port)
+                .then(function (result) {
                     this.state.presentValue = result.propertyValue;
                     this.logDebug("presentValue: " + this.state.presentValue);
                     this.logDebug("State", this.state);
@@ -223,9 +226,8 @@ function MultiStateInput() {
 
                     deferred.resolve();
                 }.bind(this))
-                .fail(function(result) {
-                    var errorMessage = 'Could not read presentValue of object '
-                        + this.configuration.objectId + ': ' + result;
+                .fail(function (result) {
+                    var errorMessage = 'Error trying to update.';
                     this.logError(errorMessage);
                     deferred.reject(errorMessage);
                 }.bind(this));
