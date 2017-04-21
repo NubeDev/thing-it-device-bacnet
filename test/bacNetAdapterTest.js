@@ -1,19 +1,15 @@
 var BacNetAdapter = require('../lib/bacNetAdapter');
 
+var ip = '192.168.5.102';
+var firstTestDevice = BacNetAdapter.createDevice(ip + ':' + BacNetAdapter.BACNET_DEFAULT_PORT, ip, BacNetAdapter.BACNET_DEFAULT_PORT);
+ip = '192.168.5.192';
+var secondTestDevice = BacNetAdapter.createDevice(ip + ':' + BacNetAdapter.BACNET_DEFAULT_PORT, ip, BacNetAdapter.BACNET_DEFAULT_PORT);
 var bacNetDeviceAdapter = BacNetAdapter.create();
-var firstTestDevice = {
-    ip: '192.168.5.102',
-    port: BacNetAdapter.BACNET_DEFAULT_PORT
-};
 
-var secondTestDevice = {
-    ip: '192.168.5.192',
-    port: BacNetAdapter.BACNET_DEFAULT_PORT
-};
-
-bacNetDeviceAdapter.initialize(firstTestDevice.ip, firstTestDevice.port)
+bacNetDeviceAdapter.initialize(firstTestDevice)
 //bacNetDeviceAdapter.initialize('192.168.0.185')
-    .then(function () {
+    .then(function (device) {
+            firstTestDevice = device;
             console.log('!!!!!!! First Device successfully initialized.');
 
 
@@ -71,7 +67,7 @@ bacNetDeviceAdapter.initialize(firstTestDevice.ip, firstTestDevice.port)
             var thisObjectId = 20;
             var thisValue = 20;
 
-            bacNetDeviceAdapter.subscribeCOV('AnalogValue', thisObjectId, firstTestDevice.ip, firstTestDevice.port, function (a) {
+            bacNetDeviceAdapter.subscribeCOV('AnalogValue', thisObjectId, firstTestDevice, function (a) {
                 console.log('!!!!!!! Change of Value: "'
                     + a.propertyValue + '" value for propertyId ' + a.propertyId
                     + ' from objectId ' + a.objectId + ' of objectType ' + a.objectType);
@@ -82,20 +78,20 @@ bacNetDeviceAdapter.initialize(firstTestDevice.ip, firstTestDevice.port)
                         + ' of objectType ' + a.objectType);
                     //console.log(a);
 
-                    return bacNetDeviceAdapter.readProperty('AnalogValue', thisObjectId, 'presentValue', firstTestDevice.ip, firstTestDevice.port)
+                    return bacNetDeviceAdapter.readProperty('AnalogValue', thisObjectId, 'presentValue', firstTestDevice)
                         .then(function (a) {
                             console.log('!!!!!!! Read:');
                             console.log(a);
                         })
                         .then(function () {
-                            return bacNetDeviceAdapter.writeProperty('AnalogValue', thisObjectId, 'presentValue', thisValue, firstTestDevice.ip, firstTestDevice.port)
+                            return bacNetDeviceAdapter.writeProperty('AnalogValue', thisObjectId, 'presentValue', thisValue, firstTestDevice)
                         })
                         .then(function (a) {
                             console.log('!!!!!!! Wrote:');
                             console.log(a);
                         })
                         .then(function () {
-                            return bacNetDeviceAdapter.readProperty('AnalogValue', thisObjectId, 'presentValue', firstTestDevice.ip, firstTestDevice.port)
+                            return bacNetDeviceAdapter.readProperty('AnalogValue', thisObjectId, 'presentValue', firstTestDevice)
                         })
                         .then(function (a) {
                             console.log('!!!!!!! Read:');
@@ -103,7 +99,7 @@ bacNetDeviceAdapter.initialize(firstTestDevice.ip, firstTestDevice.port)
                         })
                         .delay(20000)
                         .then(function (a) {
-                            return bacNetDeviceAdapter.unsubscribeCOV('AnalogValue', thisObjectId, firstTestDevice.ip, firstTestDevice.port);
+                            return bacNetDeviceAdapter.unsubscribeCOV('AnalogValue', thisObjectId, firstTestDevice);
                         })
                         .then(function (a) {
                             console.log('!!!!!!! Un-subscribed:');
@@ -119,7 +115,6 @@ bacNetDeviceAdapter.initialize(firstTestDevice.ip, firstTestDevice.port)
                 .done();
 
 
-
             /*
              bacNetDeviceAdapter.unsubscribeCOV('AnalogValue', 31);
              */
@@ -127,12 +122,12 @@ bacNetDeviceAdapter.initialize(firstTestDevice.ip, firstTestDevice.port)
         }.bind(this)
     );
 
-bacNetDeviceAdapter.initialize(secondTestDevice.ip, secondTestDevice.port)
+bacNetDeviceAdapter.initialize(secondTestDevice)
     .then(function (a) {
         console.log('****** Second Device successfully initialized.');
     })
     .then(function () {
-        return bacNetDeviceAdapter.writeProperty('AnalogValue', 112, 'presentValue', 81, secondTestDevice.ip, secondTestDevice.port)
+        return bacNetDeviceAdapter.writeProperty('AnalogValue', 112, 'presentValue', 81, secondTestDevice)
             .then(function (result) {
                 console.log('****** Result');
                 console.log(result)

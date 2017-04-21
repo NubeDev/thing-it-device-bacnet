@@ -84,20 +84,22 @@ function BinaryValue() {
      *
      */
     BinaryValue.prototype.start = function () {
-        this.logDebug("BINARY VALUE START");
         var deferred = q.defer();
         this.isSubscribed = false;
 
-        this.logDebug("BINARY VALUE START - change state");
         this.state = {
             presentValue: false,
             alarmValue: false,
             outOfService: false
         };
 
-        this.logDebug("BINARY VALUE START - check if simulated");
+        if (!this.configuration.objectType || ("" == this.configuration.objectType))
+        {
+            this.configuration.objectType = OBJECT_TYPE;
+        }
+
         if (this.isSimulated()) {
-            this.logDebug("BINARY VALUE START - in simulation");
+            this.logDebug("Starting in simulated mode.");
             this.simulationIntervals = [];
 
             this.simulationIntervals.push(setInterval(function () {
@@ -113,7 +115,7 @@ function BinaryValue() {
                 this.publishStateChange();
 
                 if (this.state.alarmValue == true) {
-                    this.logDebug("BINARY VALUE SIMULATION - publish event because of alarm");
+                    this.logDebug("Publishing simulated alarm state.");
                     this.device.publishEvent('Warning', {details: 'Something is not normal here.'});
                 }
             }.bind(this), 17000));
@@ -125,10 +127,10 @@ function BinaryValue() {
                 this.publishStateChange();
 
                 if (this.state.outOfService == true) {
-                    this.logDebug("BINARY VALUE SIMULATION - change operational state to notReachable");
+                    this.logDebug("Simulated out of service.");
                     this.operationalState = {state: 'notReachable'};
                 } else {
-                    this.logDebug("BINARY VALUE SIMULATION - change operational state to normal");
+                    this.logDebug("Simulated back in service.");
                     this.operationalState = {state: 'normal'};
                 }
                 this.publishOperationalStateChange();
@@ -138,8 +140,8 @@ function BinaryValue() {
         } else {
             this.logDebug("Starting in non-simulated mode");
             this.logDebug("Subscribing to COV");
-            this.device.adapter.subscribeCOV(OBJECT_TYPE, this.configuration.objectId,
-                this.device.configuration.ipAddress, this.device.configuration.port, function (notification) {
+            this.device.adapter.subscribeCOV(this.configuration.objectType, this.configuration.objectId,
+                this.device.bacNetDevice, function (notification) {
                 this.logDebug('received notification');
                 if (notification.propertyValue == 1) {
                     this.state.presentValue = true;
@@ -186,8 +188,8 @@ function BinaryValue() {
         } else {
             this.logDebug("Attempting to un-subscribe from updates for present value.");
 
-            this.device.adapter.unsubscribeCOV(OBJECT_TYPE, this.configuration.objectId,
-                this.device.configuration.ipAddress, this.device.configuration.port)
+            this.device.adapter.unsubscribeCOV(this.configuration.objectType, this.configuration.objectId,
+                this.device.bacNetDevice)
                 .then(function (result) {
                     this.logDebug('Successfully un-subscribed to COV of presentValue on object ' + this.configuration.objectId);
                     deferred.resolve();
@@ -234,8 +236,8 @@ function BinaryValue() {
 
             deferred.resolve();
         } else {
-            this.device.adapter.readProperty(OBJECT_TYPE, this.configuration.objectId, 'presentValue',
-                this.device.configuration.ipAddress, this.device.configuration.port)
+            this.device.adapter.readProperty(this.configuration.objectType, this.configuration.objectId, 'presentValue',
+                this.device.bacNetDevice)
                 .then(function(result) {
                     if (result.propertyValue == 1) {
                         this.state.presentValue = true;
@@ -280,8 +282,8 @@ function BinaryValue() {
                 presentValue = 0;
             }
 
-            this.device.adapter.writeProperty(OBJECT_TYPE, this.configuration.objectId, 'presentValue', presentValue,
-                this.device.configuration.ipAddress, this.device.configuration.port)
+            this.device.adapter.writeProperty(this.configuration.objectType, this.configuration.objectId, 'presentValue', presentValue,
+                this.device.bacNetDevice)
                 .then(function(result) {
                     if (!this.isSubscribed) {
                         if (result.propertyValue == 1) {

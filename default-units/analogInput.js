@@ -40,12 +40,20 @@ module.exports = {
                 defaultValue: ""
             },
             {
+                label: "Object Type",
+                id: "objectId",
+                type: {
+                    id: "string"
+                },
+                defaultValue: ""
+            },
+            {
                 label: "Object Name",
                 id: "objectName",
                 type: {
                     id: "string"
                 },
-                defaultValue: ""
+                defaultValue: "AnalogInput"
             },
             {
                 label: "Description",
@@ -74,6 +82,7 @@ function AnalogInput() {
      */
     AnalogInput.prototype.start = function () {
         var deferred = q.defer();
+
         this.isSubscribed = false;
 
         this.state = {
@@ -81,6 +90,10 @@ function AnalogInput() {
             alarmValue: false,
             outOfService: false
         };
+
+        if (!this.configuration.objectType || ("" == this.configuration.objectType)) {
+            this.configuration.objectType = OBJECT_TYPE;
+        }
 
         if (this.isSimulated()) {
             this.logDebug("Starting in simulated mode.");
@@ -127,21 +140,22 @@ function AnalogInput() {
         } else {
             this.logDebug("Starting in non-simulated mode");
             this.logDebug("Subscribing to COV");
-            this.device.adapter.subscribeCOV(OBJECT_TYPE, this.configuration.objectId,
-                this.device.configuration.ipAddress, this.device.configuration.port, function (notification) {
-                this.logDebug('received notification');
 
-                this.state.presentValue = notification.propertyValue;
-                this.logDebug("presentValue: " + this.state.presentValue);
-                this.logDebug("State", this.state);
-                this.publishStateChange();
-            }.bind(this))
-                .then(function(result) {
+            this.device.adapter.subscribeCOV(this.configuration.objectType, this.configuration.objectId,
+                this.device.bacNetDevice, function (notification) {
+                    this.logDebug('received notification');
+
+                    this.state.presentValue = notification.propertyValue;
+                    this.logDebug("presentValue: " + this.state.presentValue);
+                    this.logDebug("State", this.state);
+                    this.publishStateChange();
+                }.bind(this))
+                .then(function (result) {
                     this.logDebug('Successfully subscribed to COV of presentValue on object ' + this.configuration.objectId);
                     this.isSubscribed = true;
                     deferred.resolve();
                 }.bind(this))
-                .fail(function(result) {
+                .fail(function (result) {
                     var errorMessage = 'Could not subscribe to COV of presentValue on object '
                         + this.configuration.objectId + ': ' + result;
                     this.logError(errorMessage);
@@ -170,8 +184,7 @@ function AnalogInput() {
         } else {
             this.logDebug("Attempting to un-subscribe from updates for present value.");
 
-            this.device.adapter.unsubscribeCOV(OBJECT_TYPE, this.configuration.objectId,
-                this.device.configuration.ipAddress, this.device.configuration.port)
+            this.device.adapter.unsubscribeCOV(this.configuration.objectType, this.configuration.objectId, this.device.bacNetDevice)
                 .then(function (result) {
                     this.logDebug('Successfully un-subscribed to COV of presentValue on object ' + this.configuration.objectId);
                     deferred.resolve();
@@ -214,8 +227,8 @@ function AnalogInput() {
 
             deferred.resolve();
         } else {
-            this.device.adapter.readProperty(OBJECT_TYPE, this.configuration.objectId, 'presentValue',
-                this.device.configuration.ipAddress, this.device.configuration.port)
+            this.device.adapter.readProperty(this.configuration.objectType, this.configuration.objectId, 'presentValue',
+                this.device.bacNetDevice)
                 .then(function (result) {
                     this.state.presentValue = result.propertyValue;
                     this.logDebug("presentValue: " + this.state.presentValue);

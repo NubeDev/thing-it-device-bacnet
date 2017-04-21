@@ -124,9 +124,14 @@ function BacNet() {
                     this.configuration.port = port;
                 }
 
+                this.bacNetDevice = BacNetAdapter.createDevice(
+                    this.configuration.ipAddress + ':' + this.configuration.port,
+                    this.configuration.ipAddress, this.configuration.port);
                 this.adapter = BacNetAdapter.create();
-                this.adapter.initialize(this.configuration.ipAddress, this.configuration.port)
-                    .then(function () {
+
+                this.adapter.initialize(this.bacNetDevice)
+                    .then(function (bacNetDevice) {
+                        this.bacNetDevice = bacNetDevice;
                         deferred.resolve();
                     }.bind(this))
                     .fail(function (e) {
@@ -152,7 +157,7 @@ function BacNet() {
         if (this.isSimulated()) {
             this.logDebug("Stopping BACnet in simulated mode.");
         } else {
-            this.adapter.release(this.configuration.ipAddress, this.configuration.port)
+            this.adapter.release(this.bacNetDevice)
                 .then(function () {
                     deferred.resolve();
                 }.bind(this))
