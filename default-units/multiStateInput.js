@@ -37,6 +37,14 @@ module.exports = {
                 defaultValue: ""
             },
             {
+                label: "Object Type",
+                id: "objectType",
+                type: {
+                    id: "string"
+                },
+                defaultValue: ""
+            },
+            {
                 label: "Object Name",
                 id: "objectName",
                 type: {

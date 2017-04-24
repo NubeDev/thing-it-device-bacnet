@@ -29,6 +29,16 @@ module.exports = {
                 type: {
                     id: "boolean"
                 }
+            }, {
+                id: "min", label: "Min",
+                type: {
+                    id: "float"
+                }
+            }, {
+                id: "max", label: "Max",
+                type: {
+                    id: "float"
+                }
             }],
         configuration: [
             {
@@ -41,7 +51,7 @@ module.exports = {
             },
             {
                 label: "Object Type",
-                id: "objectId",
+                id: "objectType",
                 type: {
                     id: "string"
                 },
@@ -88,6 +98,8 @@ function AnalogInput() {
         this.state = {
             presentValue: 0.0,
             alarmValue: false,
+            min: this.configuration.minValue,
+            max: this.configuration.maxValue,
             outOfService: false
         };
 

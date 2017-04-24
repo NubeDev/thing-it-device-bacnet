@@ -32,6 +32,16 @@ module.exports = {
                 type: {
                     id: "boolean"
                 }
+            }, {
+                id: "min", label: "Min",
+                type: {
+                    id: "float"
+                }
+            }, {
+                id: "max", label: "Max",
+                type: {
+                    id: "float"
+                }
             }],
         configuration: [
             {
@@ -106,7 +116,9 @@ function AnalogValue() {
         this.state = {
             presentValue: 0.0,
             alarmValue: false,
-            outOfService: false
+            min: this.configuration.minValue,
+            max: this.configuration.maxValue,
+            outOfService: false,
         };
 
         if (!this.configuration.objectType || ("" == this.configuration.objectType))

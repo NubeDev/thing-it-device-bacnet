@@ -64,8 +64,8 @@ bacNetDeviceAdapter.initialize(firstTestDevice)
 
 
             //Example setting the Ventil Maximum Regelbereich
-            var thisObjectId = 20;
-            var thisValue = 20;
+            var thisObjectId = 32;
+            var thisValue = 0;
 
             bacNetDeviceAdapter.subscribeCOV('AnalogValue', thisObjectId, firstTestDevice, function (a) {
                 console.log('!!!!!!! Change of Value: "'
