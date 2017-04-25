@@ -20,15 +20,25 @@ angular.module('testApp', ['ThingItMobile.PluginDirectives'])
             },
 
             changeValue: function (parameters) {
-                console.log(parameters);
+                console.log('Parameters', parameters);
+            }
+        };
+
+        this.room = {
+            _state: {
+                presentValue: false,
+                alarmValue: false,
+                outOfService: true,
+                temperature: 21.5,
+                setPoint: 22
             }
         };
 
         this.panel = {
             callActorService: function(controllerObject, controllerFunction, valueToSet) {
                 console.log('Hellooooooo!!!!!');
-                console.log(controllerObject, controllerFunction, valueToSet);
-            },
+                controllerObject[controllerFunction](valueToSet)
+            }
         }
 
     });

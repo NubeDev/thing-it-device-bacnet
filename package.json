@@ -1,6 +1,6 @@
 {
   "name": "thing-it-device-bacnet",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "[thing-it-node] Device Plugin for BACnet networks.",
   "authors": "Philipp Hansen, Raimund Backes, Marc Gille, Klaus Berberich",
   "license": "MIT",
@@ -17,9 +17,9 @@
     "url": "https://github.com/marcgille/thing-it-device-bacnet"
   },
   "dependencies": {
+    "dgram": "1.0.1",
     "moment": "^2.17.0",
     "q": "^1.4.1",
-    "dgram": "1.0.1",
     "underscore": "1.8.3"
   },
   "devDependencies": {

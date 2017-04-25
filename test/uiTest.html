@@ -71,6 +71,13 @@
              ng-repeat="component in [test.analog]"
              ng-include="'../web/analogValue.html'"></div>
     </div>
+
+    <h1>BACnet Room Control</h1>
+    <div ng-repeat="panel in [test.panel]">
+        <div class="formSection flexLayout flexJustifyCenter" style="width: 40em;"
+             ng-repeat="component in [test.room]"
+             ng-include="'../web/roomControl.html'"></div>
+    </div>
 </div>
 </body>
 </html>

@@ -121,8 +121,7 @@ function AnalogValue() {
             outOfService: false,
         };
 
-        if (!this.configuration.objectType || ("" == this.configuration.objectType))
-        {
+        if (!this.configuration.objectType || ("" == this.configuration.objectType)) {
             this.configuration.objectType = OBJECT_TYPE;
         }
 
@@ -173,13 +172,13 @@ function AnalogValue() {
             this.logDebug("Subscribing to COV");
             this.device.adapter.subscribeCOV(this.configuration.objectType, this.configuration.objectId,
                 this.device.bacNetDevice, function (notification) {
-                this.logDebug('received notification');
+                    this.logDebug('received notification');
 
-                this.state.presentValue = notification.propertyValue;
-                this.logDebug("presentValue: " + this.state.presentValue);
-                this.logDebug("State", this.state);
-                this.publishStateChange();
-            }.bind(this))
+                    this.state.presentValue = notification.propertyValue;
+                    this.logDebug("presentValue: " + this.state.presentValue);
+                    this.logDebug("State", this.state);
+                    this.publishStateChange();
+                }.bind(this))
                 .then(function (result) {
                     this.logDebug('Successfully subscribed to COV of presentValue on object ' + this.configuration.objectId);
                     this.isSubscribed = true;
@@ -318,8 +317,20 @@ function AnalogValue() {
      *
      */
     AnalogValue.prototype.changeValue = function (parameters) {
-        if ((parameters) && (parameters.presentValue)) {
-            return this.setPresentValue(parameters.presentValue);
+        var promise;
+        this.logDebug('Change value requested with parameters: ', parameters)
+
+        if ((parameters) && (parameters.value)) {
+            promise = this.setPresentValue(parameters.value);
+        } else {
+            var message = 'No value provided to change.';
+            this.logDebug(message, parameters);
+
+            promise = q.fcall(function () {
+                return new Error(message);
+            })
         }
+
+        return promise;
     }
 };
