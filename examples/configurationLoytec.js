@@ -6,6 +6,7 @@ module.exports = {
         {
             "plugin": "bacnet/bacNetDevice",
             "actors": [
+/*
                 {
                     "id": "roomControl1",
                     "label": "Room Control",
@@ -20,7 +21,24 @@ module.exports = {
                         "setpointModificationObjectId": 32,
                         "setpointModificationObjectType": "AnalogValue",
                     }
+                },
+*/
+                {
+                    "id": "thermostat1",
+                    "label": "Thermostat",
+                    "type": "thermostat",
+                    "logLevel": "debug",
+                    "configuration": {
+                        //"simulated": true,
+                        "setpointFeedbackObjectId": 20,
+                        "setpointFeedbackObjectType": "AnalogValue",
+                        "temperatureObjectId": 24,
+                        "temperatureObjectType": "AnalogValue",
+                        "setpointModificationObjectId": 32,
+                        "setpointModificationObjectType": "AnalogValue",
+                    }
                 }
+
             ],
             "sensors": [],
             "services": [],

@@ -30,7 +30,20 @@ angular.module('testApp', ['ThingItMobile.PluginDirectives'])
                 alarmValue: false,
                 outOfService: true,
                 temperature: 21.5,
-                setPoint: 22
+                setpoint: 22,
+                coolActive: true,
+                jalousiePosition: 30,
+                jalousieRotation: 45,
+                lightActive: true,
+                dimmerLevel: 75,
+            },
+
+            toggleLight: function () {
+                this.room._state.lightActive = !this.room._state.lightActive;
+            },
+
+            changeDimmer: function (parameters) {
+                console.log('New Dimmer Level', parameters);
             }
         };
 
