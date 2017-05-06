@@ -54,8 +54,35 @@ module.exports = {
                     id: "string"
                 },
                 defaultValue: ""
-            },
-            {
+            }, {
+                label: "Position Modification Increment Value",
+                id: "positionModificationIncrementValue",
+                type: {
+                    id: "integer"
+                },
+                defaultValue: ""
+            }, {
+                label: "Position Modification Decrement Value",
+                id: "positionModificationDecrementValue",
+                type: {
+                    id: "integer"
+                },
+                defaultValue: ""
+            }, {
+                label: "Position Modification Stop Value",
+                id: "positionModificationStopValue",
+                type: {
+                    id: "integer"
+                },
+                defaultValue: ""
+            }, {
+                label: "Position Modification Stop Time",
+                id: "positionModificationStopTime",
+                type: {
+                    id: "integer"
+                },
+                defaultValue: ""
+            }, {
                 label: "Rotation Feedback Object Id",
                 id: "rotationFeedbackObjectId",
                 type: {
@@ -114,6 +141,7 @@ function Light() {
 
         } else {
             this.state = {};
+            this.internalListeners = [];
             this.logDebug("Starting in non-simulated mode");
             this.logDebug("Subscribing to COVs for position and rotation");
 
@@ -124,6 +152,13 @@ function Light() {
                         this.state.position = notification.propertyValue;
                         this.logDebug("Position: " + this.state.position);
                         this.logDebug("State", this.state);
+
+                        function notifyListeners(element, index, array) {
+                            element(index);
+                        };
+
+                        this.internalListeners.forEach(notifyListeners);
+
                         this.publishStateChange();
                     }.bind(this)),
                 this.device.adapter.subscribeCOV(this.configuration.rotationFeedbackObjectType,
@@ -139,8 +174,8 @@ function Light() {
                     this.isSubscribed = true;
                 }.bind(this))
                 .fail(function (result) {
-                    var errorMessage = 'Could not subscribe to COVs of object '
-                        + this.configuration.setpointFeedbackObjectId + ': ' + result;
+                    var errorMessage = 'Could not subscribe to COVs of object ' +
+                        this.configuration.setpointFeedbackObjectId + ': ' + result;
                     this.logError(errorMessage);
                     throw new Error(errorMessage);
                 }.bind(this));
@@ -177,8 +212,8 @@ function Light() {
                     this.isSubscribed = true;
                 }.bind(this))
                 .fail(function (result) {
-                    var errorMessage = 'Could not un-subscribe from all COV objects: '
-                        + this.configuration.setpointFeedbackObjectId + ': ' + result;
+                    var errorMessage = 'Could not un-subscribe from all COV objects: ' +
+                        this.configuration.setpointFeedbackObjectId + ': ' + result;
                     this.logError(errorMessage);
                     throw new Error(errorMessage);
                 }.bind(this));
@@ -201,13 +236,49 @@ function Light() {
         var promise;
         this.logDebug('Received set state.', targetstate);
 
-//        if (this.isSimulated()) {
-        //TODO remove
-        if (true) {
+        if (this.isSimulated()) {
+            promise = q();
             this.state = targetstate;
             this.publishStateChange();
         } else {
+            var deferred = q.defer();
+
+            if (this.state.position > targetstate.position) {
+                this.internalListeners.push(function (element) {
+                    if (this.state.position < targetstate.position) {
+                        this.setPositionModification(this.configuration.positionModificationStopValue);
+                        this.internalListeners.splice(element,1);
+                        deferred.resolve();
+                    }
+                }.bind(this));
+
+                this.setPositionModification(this.configuration.positionModificationDecrementValue).then(function () {
+                    setTimeout(function () {
+                        this.logError(this.state);
+                        deferred.reject('Desired target position ' + targetstate.position + ' not reached after 20s.');
+                    }.bind(this), 20000);
+                });
+            } else {
+                this.internalListeners.push(function (element) {
+                    if (this.state.position > targetstate.position) {
+                        this.setPositionModification(this.configuration.positionModificationStopValue);
+                        this.internalListeners.splice(element,1);
+                        deferred.resolve();
+                    }
+                }.bind(this));
+
+                this.setPositionModification(this.configuration.positionModificationIncrementValue).then(function () {
+                    setTimeout(function () {
+                        this.logError(this.state);
+                        deferred.reject('Desired target position ' + targetstate.position + ' not reached after 20s.');
+                    }.bind(this), 20000);
+                });
+            }
+
+            promise = deferred.promise;
         }
+
+        return promise;
     };
 
     /**
@@ -235,6 +306,19 @@ function Light() {
     /**
      *
      */
+    Light.prototype.setPositionModification = function (modificationValue) {
+        this.logDebug('Modifying position', modificationValue);
+        return this.device.adapter.writeProperty(this.configuration.positionModificationObjectType,
+            this.configuration.positionModificationObjectId, 'presentValue', modificationValue, this.device.bacNetDevice)
+            .then(function (result) {
+                this.logDebug('Modified Position', modificationValue, result);
+            }.bind(this));
+    };
+
+
+    /**
+     *
+     */
     Light.prototype.raisePosition = function () {
         var promise;
 
@@ -243,7 +327,11 @@ function Light() {
             this.state.position = (this.state.position < 10 ? 0 : this.state.position - 10);
             this.publishStateChange();
         } else {
-            promise = this.setPositionModification(-10);
+            promise = this.setPositionModification(this.configuration.positionModificationDecrementValue)
+                .delay(this.configuration.positionModificationStopTime)
+                .then(function (lastState) {
+                    return this.setPositionModification(this.configuration.positionModificationStopValue);
+                }.bind(this));
         }
 
         return promise;
@@ -255,9 +343,18 @@ function Light() {
     Light.prototype.lowerPosition = function () {
         var promise;
 
-        promise = q();
-        this.state.position = (this.state.position > 90 ? 100 : this.state.position + 10);
-        this.publishStateChange();
+        if (this.isSimulated()) {
+            promise = q();
+            this.state.position = (this.state.position > 90 ? 100 : this.state.position + 10);
+            this.publishStateChange();
+        } else {
+            promise = this.setPositionModification(this.configuration.positionModificationIncrementValue)
+                .delay(this.configuration.positionModificationStopTime)
+                .then(function (lastState) {
+                    return this.setPositionModification(this.configuration.positionModificationStopValue);
+                }.bind(this));
+        }
+
         return promise;
     };
 
@@ -267,9 +364,14 @@ function Light() {
     Light.prototype.positionUp = function () {
         var promise;
 
-        promise = q();
-        this.state.position = 0;
-        this.publishStateChange();
+        if (this.isSimulated()) {
+            promise = q();
+            this.state.position = 0;
+            this.publishStateChange();
+        } else {
+            promise = this.setPositionModification(this.configuration.positionModificationDecrementValue);
+        }
+
         return promise;
     };
 
@@ -279,9 +381,14 @@ function Light() {
     Light.prototype.positionDown = function () {
         var promise;
 
-        promise = q();
-        this.state.position = 100;
-        this.publishStateChange();
+        if (this.isSimulated()) {
+            promise = q();
+            this.state.position = 100;
+            this.publishStateChange();
+        } else {
+            promise = this.setPositionModification(this.configuration.positionModificationIncrementValue);
+        }
+
         return promise;
     };
 

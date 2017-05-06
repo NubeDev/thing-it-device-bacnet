@@ -28,8 +28,8 @@ module.exports = {
             "sensors": [],
             "services": [],
             "class": "Device",
-            "id": "LoytecBACnet",
-            "label": "Loytec BACnet",
+            "id": "BACnet",
+            "label": "BACnet",
             "configuration": {
                 //"simulated": true,
                 //"ipAddress": "192.168.5.102",

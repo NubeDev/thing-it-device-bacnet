@@ -26,7 +26,7 @@ describe('[thing-it] BACnet Device', function () {
             it('should have received initial value via COV subscription for setpoint, temperature, and mode',
                 function (done) {
                     setTimeout(function () {
-                        var currentState = testDriver.LoytecBACnet.thermostat1.getState();
+                        var currentState = testDriver.BACnet.thermostat1.getState();
                         initialState = JSON.parse(JSON.stringify(currentState));
 
                         try {
@@ -42,26 +42,26 @@ describe('[thing-it] BACnet Device', function () {
                 });
         });
 
-        describe.skip('#incrementSetpoint', function () {
+        describe('#incrementSetpoint', function () {
             it('should increase the setpoint modification and the setpoint by 1',
                 function (done) {
                     var desiredState = JSON.parse(JSON.stringify(initialState));
                     desiredState.setpoint += 1;
 
-                    testDriver.LoytecBACnet.thermostat1.incrementSetpoint()
+                    testDriver.BACnet.thermostat1.incrementSetpoint()
                         .then(function () {
-                            var resultingState = testDriver.LoytecBACnet.thermostat1.getState();
+                            var resultingState = testDriver.BACnet.thermostat1.getState();
                             assert.equal(resultingState.setpoint, desiredState.setpoint);
                             lastState = resultingState;
                             done();
                         })
                         .fail(function (error) {
                             done(error);
-                        })
-                })
+                        });
+                });
         });
 
-        describe.skip('#decrementSetpoint twice', function () {
+        describe('#decrementSetpoint twice', function () {
             this.timeout(4000);
 
             it('should decrease the setpoint modification and the setpoint by 2',
@@ -69,41 +69,41 @@ describe('[thing-it] BACnet Device', function () {
                     var desiredState = JSON.parse(JSON.stringify(lastState));
                     desiredState.setpoint -= 2;
 
-                    testDriver.LoytecBACnet.thermostat1.decrementSetpoint()
+                    testDriver.BACnet.thermostat1.decrementSetpoint()
                         .then(function () {
-                            return testDriver.LoytecBACnet.thermostat1.decrementSetpoint();
+                            return testDriver.BACnet.thermostat1.decrementSetpoint();
                         })
                         .then(function () {
-                            var resultingState = testDriver.LoytecBACnet.thermostat1.getState();
+                            var resultingState = testDriver.BACnet.thermostat1.getState();
                             assert.equal(resultingState.setpoint, desiredState.setpoint);
                             lastState = resultingState;
                             done();
                         })
                         .fail(function (error) {
                             done(error);
-                        })
-                })
+                        });
+                });
         });
 
 
-        describe.skip('#setState', function () {
+        describe('#setState', function () {
             this.timeout(4000);
 
             it('should set the device back to the initial state',
                 function (done) {
                     var desiredState = initialState;
 
-                    testDriver.LoytecBACnet.thermostat1.setState(desiredState)
+                    testDriver.BACnet.thermostat1.setState(desiredState)
                         .then(function () {
-                            var resultingState = testDriver.LoytecBACnet.thermostat1.getState();
+                            var resultingState = testDriver.BACnet.thermostat1.getState();
                             assert.equal(resultingState.setpoint, desiredState.setpoint);
                             assert.equal(resultingState.temperature, desiredState.temperature);
                             done();
                         })
                         .fail(function (error) {
                             done(error);
-                        })
-                })
+                        });
+                });
         });
     })
 
