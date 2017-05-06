@@ -172,38 +172,62 @@ function Thermostat() {
             this.logDebug("Starting in non-simulated mode");
             this.logDebug("Subscribing to COVs");
 
-            promise = q.all([
-                this.device.adapter.subscribeCOV(this.configuration.setpointFeedbackObjectType, this.configuration.setpointFeedbackObjectId,
-                    this.device.bacNetDevice, function (notification) {
-                        this.logDebug('Received setpoint feedback notification.');
-                        this.state.setpoint = notification.propertyValue;
-                        this.logDebug("Setpoint: " + this.state.setpoint);
-                        this.logDebug("State", this.state);
-                        this.publishStateChange();
-                    }.bind(this)),
-                this.device.adapter.subscribeCOV(this.configuration.temperatureObjectType, this.configuration.temperatureObjectId,
-                    this.device.bacNetDevice, function (notification) {
-                        this.logDebug('Received temperature notification.');
-                        this.state.temperature = notification.propertyValue;
-                        this.logDebug("Temperature: " + this.state.temperature);
-                        this.logDebug("State", this.state);
-                        this.publishStateChange();
-                    }.bind(this)),
-                this.device.adapter.subscribeCOV(this.configuration.modeObjectType, this.configuration.modeObjectId,
-                    this.device.bacNetDevice, function (notification) {
-                        this.logDebug('Received mode notification.');
-                        this.state.mode = notification.propertyValue;
-                        this.logDebug("Mode: " + this.state.mode);
-                        this.logDebug("State", this.state);
-                        this.publishStateChange();
-                    }.bind(this))])
+            promise = this.device.adapter.readProperty(this.configuration.modeObjectType,
+                this.configuration.modeObjectId, 'stateText', this.device.bacNetDevice)
                 .then(function (result) {
-                    this.logDebug('Successfully subscribed to COVs.');
-                    this.isSubscribed = true;
+                    this.logDebug('Viable modes: ' + result);
+                    this.modeStrings = result.propertyValue;
+                }.bind(this))
+                .then(function () {
+                    return q.all([
+                        this.device.adapter.subscribeCOV(this.configuration.setpointFeedbackObjectType, this.configuration.setpointFeedbackObjectId,
+                            this.device.bacNetDevice, function (notification) {
+                                this.logDebug('Received setpoint feedback notification.');
+                                this.state.setpoint = notification.propertyValue;
+                                this.logDebug("Setpoint: " + this.state.setpoint);
+                                this.logDebug("State", this.state);
+                                this.publishStateChange();
+                            }.bind(this)),
+                        this.device.adapter.subscribeCOV(this.configuration.temperatureObjectType, this.configuration.temperatureObjectId,
+                            this.device.bacNetDevice, function (notification) {
+                                this.logDebug('Received temperature notification.');
+                                this.state.temperature = notification.propertyValue;
+                                this.logDebug("Temperature: " + this.state.temperature);
+                                this.logDebug("State", this.state);
+                                this.publishStateChange();
+                            }.bind(this)),
+                        this.device.adapter.subscribeCOV(this.configuration.modeObjectType, this.configuration.modeObjectId,
+                            this.device.bacNetDevice, function (notification) {
+                                this.logDebug('Received mode notification.');
+                                this.logDebug("Mode ID: " + notification.propertyValue);
+                                this.state.mode = this.modeStrings[notification.propertyValue - 1];
+                                this.logDebug("Mode: " + this.state.mode);
+
+                                switch (this.state.mode) {
+                                    case 'HEAT':
+                                        this.state.heatActive = true;
+                                        this.state.coolActive = false;
+                                        break;
+                                    case 'COOL':
+                                        this.state.coolActive = true;
+                                        this.state.heatActive = false;
+                                        break;
+                                    default:
+                                        this.state.coolActive = false;
+                                        this.state.heatActive = false;
+                                        break;
+                                }
+
+                                this.logDebug("State", this.state);
+                                this.publishStateChange();
+                            }.bind(this))])
+                        .then(function (result) {
+                            this.logDebug('Successfully subscribed to COVs.');
+                            this.isSubscribed = true;
+                        }.bind(this));
                 }.bind(this))
                 .fail(function (result) {
-                    var errorMessage = 'Could not subscribe to COVs of object '
-                        + this.configuration.setpointFeedbackObjectId + ': ' + result;
+                    var errorMessage = 'Could not subscribe to COVs ' + result;
                     this.logError(errorMessage);
                     throw new Error(errorMessage);
                 }.bind(this));
@@ -229,6 +253,9 @@ function Thermostat() {
             this.logDebug("Attempting to un-subscribe from updates.");
 
             promise = q.all([
+                this.device.adapter.unsubscribeCOV(this.configuration.modeObjectType, this.configuration.modeObjectId,
+                    this.device.bacNetDevice, function (notification) {
+                    }.bind(this)),
                 this.device.adapter.unsubscribeCOV(this.configuration.setpointFeedbackObjectType, this.configuration.setpointFeedbackObjectId,
                     this.device.bacNetDevice, function (notification) {
                     }.bind(this)),
@@ -240,8 +267,7 @@ function Thermostat() {
                     this.isSubscribed = true;
                 }.bind(this))
                 .fail(function (result) {
-                    var errorMessage = 'Could not un-subscribe from all COV objects: '
-                        + this.configuration.setpointFeedbackObjectId + ': ' + result;
+                    var errorMessage = 'Could not un-subscribe from all COV objects: ' + result;
                     this.logError(errorMessage);
                     throw new Error(errorMessage);
                 }.bind(this));

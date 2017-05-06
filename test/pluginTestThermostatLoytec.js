@@ -23,7 +23,7 @@ describe('[thing-it] BACnet Device', function () {
         describe('#start', function () {
             this.timeout(5000);
 
-            it('should have received initial value via COV subscription for setpoint and temperature',
+            it('should have received initial value via COV subscription for setpoint, temperature, and mode',
                 function (done) {
                     setTimeout(function () {
                         var currentState = testDriver.LoytecBACnet.thermostat1.getState();
