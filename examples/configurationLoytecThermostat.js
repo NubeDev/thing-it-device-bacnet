@@ -6,23 +6,6 @@ module.exports = {
         {
             "plugin": "bacnet/bacNetDevice",
             "actors": [
-/*
-                {
-                    "id": "roomControl1",
-                    "label": "Room Control",
-                    "type": "roomControl",
-                    "logLevel": "debug",
-                    "configuration": {
-                        //"simulated": true,
-                        "setpointFeedbackObjectId": 20,
-                        "setpointFeedbackObjectType": "AnalogValue",
-                        "temperatureObjectId": 24,
-                        "temperatureObjectType": "AnalogValue",
-                        "setpointModificationObjectId": 32,
-                        "setpointModificationObjectType": "AnalogValue",
-                    }
-                },
-*/
                 {
                     "id": "thermostat1",
                     "label": "Thermostat",
@@ -32,10 +15,12 @@ module.exports = {
                         //"simulated": true,
                         "setpointFeedbackObjectId": 20,
                         "setpointFeedbackObjectType": "AnalogValue",
-                        "temperatureObjectId": 24,
-                        "temperatureObjectType": "AnalogValue",
                         "setpointModificationObjectId": 32,
                         "setpointModificationObjectType": "AnalogValue",
+                        "temperatureObjectId": 24,
+                        "temperatureObjectType": "AnalogValue",
+                        "modeObjectId": 3,
+                        "modeObjectType": "MultiStateValue",
                     }
                 }
 
@@ -47,7 +32,8 @@ module.exports = {
             "label": "Loytec BACnet",
             "configuration": {
                 //"simulated": true,
-                "ipAddress": "192.168.5.102",
+                //"ipAddress": "192.168.5.102",
+                "ipAddress": "192.168.0.185",
                 "bacNetId": "1",
                 "deviceId": "1"
             }

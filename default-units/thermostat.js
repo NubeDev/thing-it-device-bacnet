@@ -21,6 +21,11 @@ module.exports = {
                     id: "decimal"
                 }
             }, {
+                id: "mode", label: "Mode",
+                type: {
+                    id: "string"
+                }
+            }, {
                 id: "heatActive", label: "Heat Active",
                 type: {
                     id: "boolean"
@@ -47,6 +52,20 @@ module.exports = {
                 },
                 defaultValue: ""
             }, {
+                label: "Setpoint Modification Object Id",
+                id: "setpointModificationObjectId",
+                type: {
+                    id: "integer"
+                },
+                defaultValue: ""
+            }, {
+                label: "Setpoint Modification Object Type",
+                id: "setpointModificationObjectType",
+                type: {
+                    id: "string"
+                },
+                defaultValue: ""
+            }, {
                 label: "Temperature Object Id",
                 id: "temperatureObjectId",
                 type: {
@@ -61,15 +80,15 @@ module.exports = {
                 },
                 defaultValue: ""
             }, {
-                label: "Setpoint Modification Object Id",
-                id: "setpointModificationObjectId",
+                label: "Mode Object Id",
+                id: "modeObjectId",
                 type: {
                     id: "integer"
                 },
                 defaultValue: ""
             }, {
-                label: "Setpoint Modification Object Type",
-                id: "setpointModificationObjectType",
+                label: "Mode Object Type",
+                id: "modeObjectType",
                 type: {
                     id: "string"
                 },
@@ -151,7 +170,7 @@ function Thermostat() {
                 coolActive: false
             };
             this.logDebug("Starting in non-simulated mode");
-            this.logDebug("Subscribing to Setpoint COV");
+            this.logDebug("Subscribing to COVs");
 
             promise = q.all([
                 this.device.adapter.subscribeCOV(this.configuration.setpointFeedbackObjectType, this.configuration.setpointFeedbackObjectId,
@@ -169,13 +188,21 @@ function Thermostat() {
                         this.logDebug("Temperature: " + this.state.temperature);
                         this.logDebug("State", this.state);
                         this.publishStateChange();
+                    }.bind(this)),
+                this.device.adapter.subscribeCOV(this.configuration.modeObjectType, this.configuration.modeObjectId,
+                    this.device.bacNetDevice, function (notification) {
+                        this.logDebug('Received mode notification.');
+                        this.state.mode = notification.propertyValue;
+                        this.logDebug("Mode: " + this.state.mode);
+                        this.logDebug("State", this.state);
+                        this.publishStateChange();
                     }.bind(this))])
                 .then(function (result) {
                     this.logDebug('Successfully subscribed to COVs.');
                     this.isSubscribed = true;
                 }.bind(this))
                 .fail(function (result) {
-                    var errorMessage = 'Could not subscribe to setpoint COV of object '
+                    var errorMessage = 'Could not subscribe to COVs of object '
                         + this.configuration.setpointFeedbackObjectId + ': ' + result;
                     this.logError(errorMessage);
                     throw new Error(errorMessage);
@@ -209,7 +236,7 @@ function Thermostat() {
                     this.device.bacNetDevice, function (notification) {
                     }.bind(this))])
                 .then(function (result) {
-                    this.logDebug('Successfully subscribed to COVs.');
+                    this.logDebug('Successfully und-subscribed from COVs.');
                     this.isSubscribed = true;
                 }.bind(this))
                 .fail(function (result) {
@@ -317,13 +344,33 @@ function Thermostat() {
      *
      */
     Thermostat.prototype.incrementSetpoint = function () {
-        return this.setSetpointModification(1);
+        var promise;
+
+        if (this.isSimulated()) {
+            promise = q();
+            this.state.setpoint += 1;
+            this.publishStateChange();
+        } else {
+            promise = this.setSetpointModification(1);
+        }
+
+        return promise;
     };
 
     /**
      *
      */
     Thermostat.prototype.decrementSetpoint = function () {
-        return this.setSetpointModification(-1);
+        var promise;
+
+        if (this.isSimulated()) {
+            promise = q();
+            this.state.setpoint -= 1;
+            this.publishStateChange();
+        } else {
+            promise = this.setSetpointModification(-1);
+        }
+
+        return promise;
     };
 };

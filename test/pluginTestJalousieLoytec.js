@@ -11,47 +11,46 @@ describe('[thing-it] BACnet Device', function () {
         testDriver = require("thing-it-test").createTestDriver({logLevel: "debug"});
 
         testDriver.registerDevicePlugin(__dirname + "/../bacNetDevice");
-        testDriver.registerUnitPlugin(__dirname + "/../default-units/thermostat");
+        testDriver.registerUnitPlugin(__dirname + "/../default-units/jalousie");
         testDriver.start({
-            configuration: require("../examples/configurationLoytecThermostat.js"),
+            configuration: require("../examples/configurationLoytecJalousie.js"),
             heartbeat: 10
         });
 
     });
 
-    describe('Thermostat', function () {
+    describe('Jalousie', function () {
         describe('#start', function () {
             this.timeout(5000);
 
-            it('should have received initial value via COV subscription for setpoint and temperature',
+            it('should have received initial value via COV subscription for position and rotation',
                 function (done) {
                     setTimeout(function () {
-                        var currentState = testDriver.LoytecBACnet.thermostat1.getState();
+                        var currentState = testDriver.LoytecBACnet.jalousie1.getState();
                         initialState = JSON.parse(JSON.stringify(currentState));
 
                         try {
-                            assert.notEqual(initialState.setpoint, undefined, 'setpoint undefined');
-                            assert.notEqual(initialState.temperature, undefined, 'temperature undefined');
-                            assert.notEqual(initialState.mode, undefined, 'mode undefined');
+                            assert.notEqual(initialState.position, undefined, 'position undefined');
+                            assert.notEqual(initialState.rotation, undefined, 'temperature undefined');
                             done();
                         } catch (err) {
-                            console.log('ERROR DEBUG pluginTestRoomControlLoytec: Initial state after 5s.', initialState);
+                            console.log('ERROR DEBUG pluginTestJalousieLoytec: Initial state after 5s.', initialState);
                             done(err);
                         }
                     }, 3000);
                 });
         });
 
-        describe.skip('#incrementSetpoint', function () {
-            it('should increase the setpoint modification and the setpoint by 1',
+        describe.skip('#raisePosition', function () {
+            it('should decrease the position % by 10',
                 function (done) {
                     var desiredState = JSON.parse(JSON.stringify(initialState));
-                    desiredState.setpoint += 1;
+                    desiredState.position += 10;
 
-                    testDriver.LoytecBACnet.thermostat1.incrementSetpoint()
+                    testDriver.LoytecBACnet.jalousie1.raisePosition()
                         .then(function () {
-                            var resultingState = testDriver.LoytecBACnet.thermostat1.getState();
-                            assert.equal(resultingState.setpoint, desiredState.setpoint);
+                            var resultingState = testDriver.LoytecBACnet.jalousie1.getState();
+                            assert.equal(resultingState.position, desiredState.position);
                             lastState = resultingState;
                             done();
                         })
@@ -69,12 +68,12 @@ describe('[thing-it] BACnet Device', function () {
                     var desiredState = JSON.parse(JSON.stringify(lastState));
                     desiredState.setpoint -= 2;
 
-                    testDriver.LoytecBACnet.thermostat1.decrementSetpoint()
+                    testDriver.LoytecBACnet.jalousie1.decrementSetpoint()
                         .then(function () {
-                            return testDriver.LoytecBACnet.thermostat1.decrementSetpoint();
+                            return testDriver.LoytecBACnet.jalousie1.decrementSetpoint();
                         })
                         .then(function () {
-                            var resultingState = testDriver.LoytecBACnet.thermostat1.getState();
+                            var resultingState = testDriver.LoytecBACnet.jalousie1.getState();
                             assert.equal(resultingState.setpoint, desiredState.setpoint);
                             lastState = resultingState;
                             done();
@@ -93,9 +92,9 @@ describe('[thing-it] BACnet Device', function () {
                 function (done) {
                     var desiredState = initialState;
 
-                    testDriver.LoytecBACnet.thermostat1.setState(desiredState)
+                    testDriver.LoytecBACnet.jalousie1.setState(desiredState)
                         .then(function () {
-                            var resultingState = testDriver.LoytecBACnet.thermostat1.getState();
+                            var resultingState = testDriver.LoytecBACnet.jalousie1.getState();
                             assert.equal(resultingState.setpoint, desiredState.setpoint);
                             assert.equal(resultingState.temperature, desiredState.temperature);
                             done();

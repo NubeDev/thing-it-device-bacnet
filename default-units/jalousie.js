@@ -6,79 +6,79 @@ module.exports = {
         family: "jalousie",
         deviceTypes: ["bacnet/bacNetDevice"],
         services: [
-            {id: "incrementJalousiePosition", label: "Increment Jalousie Position"},
-            {id: "decrementJalousiePosition", label: "Decrement Jalousie Position"},
-            {id: "jalousiePositionUp", label: "Jalousie Position Up"},
-            {id: "jalousiePositionDown", label: "Jalousie Position Down"},
-            {id: "decrementJalousieRotation", label: "Decrement Jalousie Rotation"},
-            {id: "decrementJalousieRotation", label: "Decrement Jalousie Rotation"},
+            {id: "incrementPosition", label: "Increment Position"},
+            {id: "decrementPosition", label: "Decrement Position"},
+            {id: "positionUp", label: "Position Up"},
+            {id: "positionDown", label: "Position Down"},
+            {id: "decrementRotation", label: "Increment Rotation"},
+            {id: "incrementRotation", label: "Increment Rotation"},
         ],
         state: [
             {
-                id: "jalousiePosition", label: "Jalousie Position",
+                id: "position", label: "position",
                 type: {
                     id: "decimal"
                 }
             }, {
-                id: "jalousieRotation", label: "Jalousie Rotation",
+                id: "rotation", label: "rotation",
                 type: {
                     id: "decimal"
                 }
             }],
         configuration: [
             {
-                label: "Jalousie Position Feedback Object Id",
-                id: "jalousiePositionFeedbackObjectId",
+                label: "Position Feedback Object Id",
+                id: "positionFeedbackObjectId",
                 type: {
                     id: "integer"
                 },
                 defaultValue: ""
             }, {
-                label: "Jalousie Position Feedback Object Type",
-                id: "jalousiePositionFeedbackObjectType",
+                label: "Position Feedback Object Type",
+                id: "positionFeedbackObjectType",
                 type: {
                     id: "string"
                 },
                 defaultValue: ""
             }, {
-                label: "Jalousie Position Modification Object Id",
-                id: "jalousiePositionModificationObjectId",
+                label: "Position Modification Object Id",
+                id: "positionModificationObjectId",
                 type: {
                     id: "integer"
                 },
                 defaultValue: ""
             }, {
-                label: "Jalousie Position Modification Object Type",
-                id: "jalousiePositionModificationObjectType",
+                label: "Position Modification Object Type",
+                id: "positionModificationObjectType",
                 type: {
                     id: "string"
                 },
                 defaultValue: ""
             },
             {
-                label: "Jalousie Rotation Feedback Object Id",
-                id: "jalousieRotationFeedbackObjectId",
+                label: "Rotation Feedback Object Id",
+                id: "rotationFeedbackObjectId",
                 type: {
                     id: "integer"
                 },
                 defaultValue: ""
             }, {
-                label: "Jalousie Rotation Feedback Object Type",
-                id: "jalousieRotationFeedbackObjectType",
+                label: "Rotation Feedback Object Type",
+                id: "rotationFeedbackObjectType",
                 type: {
                     id: "string"
                 },
                 defaultValue: ""
             }, {
-                label: "Jalousie Rotation Modification Object Id",
-                id: "jalousieRotationModificationObjectId",
+                label: "Rotation Modification Object Id",
+                id: "rotationModificationObjectId",
                 type: {
                     id: "integer"
                 },
                 defaultValue: ""
             }, {
-                label: "Jalousie Rotation Modification Object Type",
-                id: "jalousieRotationModificationObjectType",
+                label: "Rotation Modification Object Type",
+                id: "rotationModificationObjectType",
                 type: {
                     id: "string"
                 },
@@ -104,17 +104,46 @@ function Light() {
         var promise;
 
 
-//        if (this.isSimulated()) {
-        //TODO remove
-        if (true) {
+        if (this.isSimulated()) {
             promise = q();
 
             this.state = {
-                jalousieRotation: 110,
-                jalousiePosition: 30
+                rotation: 110,
+                position: 30
             };
 
         } else {
+            this.state = {};
+            this.logDebug("Starting in non-simulated mode");
+            this.logDebug("Subscribing to COVs for position and rotation");
+
+            promise = q.all([
+                this.device.adapter.subscribeCOV(this.configuration.positionFeedbackObjectType,
+                    this.configuration.positionFeedbackObjectId, this.device.bacNetDevice, function (notification) {
+                        this.logDebug('Received position feedback notification.');
+                        this.state.position = notification.propertyValue;
+                        this.logDebug("Position: " + this.state.position);
+                        this.logDebug("State", this.state);
+                        this.publishStateChange();
+                    }.bind(this)),
+                this.device.adapter.subscribeCOV(this.configuration.rotationFeedbackObjectType,
+                    this.configuration.rotationFeedbackObjectId, this.device.bacNetDevice, function (notification) {
+                        this.logDebug('Received rotation notification.');
+                        this.state.rotation = notification.propertyValue;
+                        this.logDebug("Rotation: " + this.state.rotation);
+                        this.logDebug("State", this.state);
+                        this.publishStateChange();
+                    }.bind(this))])
+                .then(function (result) {
+                    this.logDebug('Successfully subscribed to COVs.');
+                    this.isSubscribed = true;
+                }.bind(this))
+                .fail(function (result) {
+                    var errorMessage = 'Could not subscribe to COVs of object '
+                        + this.configuration.setpointFeedbackObjectId + ': ' + result;
+                    this.logError(errorMessage);
+                    throw new Error(errorMessage);
+                }.bind(this));
         }
 
 
@@ -127,15 +156,32 @@ function Light() {
     Light.prototype.stop = function () {
         var promise;
 
-//        if (this.isSimulated()) {
-        //TODO remove
-        if (true) {
+        if (this.isSimulated()) {
             if (this.simulationInterval) {
                 clearInterval(this.simulationInterval);
             }
 
             promise = q();
         } else {
+            this.logDebug("Attempting to un-subscribe from updates.");
+
+            promise = q.all([
+                this.device.adapter.unsubscribeCOV(this.configuration.positionFeedbackObjectType, this.configuration.positionFeedbackObjectId,
+                    this.device.bacNetDevice, function (notification) {
+                    }.bind(this)),
+                this.device.adapter.unsubscribeCOV(this.configuration.rotationFeedbackObjectType, this.configuration.rotationFeedbackObjectId,
+                    this.device.bacNetDevice, function (notification) {
+                    }.bind(this))])
+                .then(function (result) {
+                    this.logDebug('Successfully un-subscribed from COVs.');
+                    this.isSubscribed = true;
+                }.bind(this))
+                .fail(function (result) {
+                    var errorMessage = 'Could not un-subscribe from all COV objects: '
+                        + this.configuration.setpointFeedbackObjectId + ': ' + result;
+                    this.logError(errorMessage);
+                    throw new Error(errorMessage);
+                }.bind(this));
         }
 
         return promise;
@@ -176,8 +222,8 @@ function Light() {
         //TODO remove
         if (true) {
             promise = q();
-            this.state.jalousiePosition = Math.round(Math.random() * 100);
-            this.state.jalousieRotation = 90 + Math.round(Math.random() * 80);
+            this.state.position = Math.round(Math.random() * 100);
+            this.state.rotation = 90 + Math.round(Math.random() * 80);
             this.publishStateChange();
         } else {
         }
@@ -189,23 +235,28 @@ function Light() {
     /**
      *
      */
-    Light.prototype.raiseJalousiePosition = function (){
+    Light.prototype.raisePosition = function () {
         var promise;
 
-        promise = q();
-        this.state.jalousiePosition = (this.state.jalousiePosition < 10 ? 0 : this.state.jalousiePosition - 10);
-        this.publishStateChange();
-        return q();
+        if (this.isSimulated()) {
+            promise = q();
+            this.state.position = (this.state.position < 10 ? 0 : this.state.position - 10);
+            this.publishStateChange();
+        } else {
+            promise = this.setPositionModification(-10);
+        }
+
+        return promise;
     };
 
     /**
      *
      */
-    Light.prototype.lowerJalousiePosition = function (){
+    Light.prototype.lowerPosition = function () {
         var promise;
 
         promise = q();
-        this.state.jalousiePosition = (this.state.jalousiePosition > 90 ? 100 : this.state.jalousiePosition + 10);
+        this.state.position = (this.state.position > 90 ? 100 : this.state.position + 10);
         this.publishStateChange();
         return promise;
     };
@@ -213,11 +264,11 @@ function Light() {
     /**
      *
      */
-    Light.prototype.jalousiePositionUp = function () {
+    Light.prototype.positionUp = function () {
         var promise;
 
         promise = q();
-        this.state.jalousiePosition = 0;
+        this.state.position = 0;
         this.publishStateChange();
         return promise;
     };
@@ -225,11 +276,11 @@ function Light() {
     /**
      *
      */
-    Light.prototype.jalousiePositionDown = function () {
+    Light.prototype.positionDown = function () {
         var promise;
 
         promise = q();
-        this.state.jalousiePosition = 100;
+        this.state.position = 100;
         this.publishStateChange();
         return promise;
     };
@@ -237,11 +288,11 @@ function Light() {
     /**
      *
      */
-    Light.prototype.incrementJalousieRotation = function (){
+    Light.prototype.incrementRotation = function () {
         var promise;
 
         promise = q();
-        this.state.jalousieRotation = (this.state.jalousieRotation > 160 ? 170 : this.state.jalousieRotation + 10);
+        this.state.rotation = (this.state.rotation > 160 ? 170 : this.state.rotation + 10);
         this.publishStateChange();
         return promise;
     };
@@ -249,11 +300,11 @@ function Light() {
     /**
      *
      */
-    Light.prototype.decrementJalousieRotation = function (){
+    Light.prototype.decrementRotation = function () {
         var promise;
 
         promise = q();
-        this.state.jalousieRotation = (this.state.jalousieRotation < 100 ? 90 : this.state.jalousieRotation - 10);
+        this.state.rotation = (this.state.rotation < 100 ? 90 : this.state.rotation - 10);
         this.publishStateChange();
         return promise;
     };
