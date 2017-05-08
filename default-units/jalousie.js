@@ -6,11 +6,11 @@ module.exports = {
         family: "jalousie",
         deviceTypes: ["bacnet/bacNetDevice"],
         services: [
-            {id: "incrementPosition", label: "Increment Position"},
-            {id: "decrementPosition", label: "Decrement Position"},
+            {id: "lowerPosition", label: "Lower Position"},
+            {id: "raisePosition", label: "Raise Position"},
             {id: "positionUp", label: "Position Up"},
             {id: "positionDown", label: "Position Down"},
-            {id: "decrementRotation", label: "Increment Rotation"},
+            {id: "decrementRotation", label: "Decrement Rotation"},
             {id: "incrementRotation", label: "Increment Rotation"},
         ],
         state: [

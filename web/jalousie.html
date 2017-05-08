@@ -6,11 +6,11 @@
         <div class="flexLayout flexDirectionColumn flexJustifyCenter flexAlignCenter marginLeft0_5">
             <div class="flexLayout flexAlignCenter flexJustifyCenter flexGrow1 marginTop0_5">
                 <div class="circleButton marginLeft0_5" style="display: inline-block;"
-                     ng-click="panel.callActorService(component, 'jalousiePositionDown')">
+                     ng-click="panel.callActorService(component, 'positionDown')">
                     <i class="fa fa-angle-double-down"></i>
                 </div>
                 <div class="circleButton marginLeft0_5" style="display: inline-block;"
-                     ng-click="panel.callActorService(component, 'lowerJalousiePosition')">
+                     ng-click="panel.callActorService(component, 'lowerPosition')">
                     <i class="fa fa-angle-down"></i>
                 </div>
                 <div class="flexGrow1 flexAlignTop marginLeft0_5">
@@ -19,17 +19,17 @@
                     <span class="smallFont lightPrimaryColor">%</span>
                 </div>
                 <div class="circleButton marginLeft0_5" style="display: inline-block;"
-                     ng-click="panel.callActorService(component, 'raiseJalousiePosition')">
+                     ng-click="panel.callActorService(component, 'incrementPosition')">
                     <i class="fa fa-angle-up"></i>
                 </div>
                 <div class="circleButton marginLeft0_5" style="display: inline-block;"
-                     ng-click="panel.callActorService(component, 'jalousiePositionUp')">
+                     ng-click="panel.callActorService(component, 'raisePosition')">
                     <i class="fa fa-angle-double-up"></i>
                 </div>
             </div>
             <div class="flexLayout flexAlignCenter flexJustifyCenter flexGrow1 marginTop0_5">
                 <div class="circleButton marginLeft0_5" style="display: inline-block;"
-                     ng-click="panel.callActorService(component, 'decrementJalousieRotation')">
+                     ng-click="panel.callActorService(component, 'decrementRotation')">
                     <i class="fa fa-angle-down"></i>
                 </div>
                 <div class="flexGrow1 flexAlignTop marginLeft0_5">
@@ -38,7 +38,7 @@
                     <span class="smallFont lightPrimaryColor">&deg;</span>
                 </div>
                 <div class="circleButton marginLeft0_5" style="display: inline-block;"
-                     ng-click="panel.callActorService(component, 'incrementJalousieRotation')">
+                     ng-click="panel.callActorService(component, 'incrementRotation')">
                     <i class="fa fa-angle-up"></i>
                 </div>
             </div>
