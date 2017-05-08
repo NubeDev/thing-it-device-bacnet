@@ -114,7 +114,7 @@ module.exports = {
         ]
     },
     create: function () {
-        return new Light();
+        return new Jalousie();
     }
 };
 
@@ -123,11 +123,11 @@ var q = require('q');
 /**
  *
  */
-function Light() {
+function Jalousie() {
     /**
      *
      */
-    Light.prototype.start = function () {
+    Jalousie.prototype.start = function () {
         var promise;
 
 
@@ -188,7 +188,7 @@ function Light() {
     /**
      *
      */
-    Light.prototype.stop = function () {
+    Jalousie.prototype.stop = function () {
         var promise;
 
         if (this.isSimulated()) {
@@ -225,14 +225,14 @@ function Light() {
     /**
      *
      */
-    Light.prototype.getState = function () {
+    Jalousie.prototype.getState = function () {
         return this.state;
     };
 
     /**
      *
      */
-    Light.prototype.setState = function (targetstate) {
+    Jalousie.prototype.setState = function (targetstate) {
         var promise;
         this.logDebug('Received set state.', targetstate);
 
@@ -284,7 +284,7 @@ function Light() {
     /**
      *
      */
-    Light.prototype.update = function () {
+    Jalousie.prototype.update = function () {
         var promise;
 
         this.logDebug('Updating values...');
@@ -306,7 +306,7 @@ function Light() {
     /**
      *
      */
-    Light.prototype.setPositionModification = function (modificationValue) {
+    Jalousie.prototype.setPositionModification = function (modificationValue) {
         this.logDebug('Modifying position', modificationValue);
         return this.device.adapter.writeProperty(this.configuration.positionModificationObjectType,
             this.configuration.positionModificationObjectId, 'presentValue', modificationValue, this.device.bacNetDevice)
@@ -319,7 +319,7 @@ function Light() {
     /**
      *
      */
-    Light.prototype.raisePosition = function () {
+    Jalousie.prototype.raisePosition = function () {
         var promise;
 
         if (this.isSimulated()) {
@@ -340,7 +340,7 @@ function Light() {
     /**
      *
      */
-    Light.prototype.lowerPosition = function () {
+    Jalousie.prototype.lowerPosition = function () {
         var promise;
 
         if (this.isSimulated()) {
@@ -361,7 +361,7 @@ function Light() {
     /**
      *
      */
-    Light.prototype.positionUp = function () {
+    Jalousie.prototype.positionUp = function () {
         var promise;
 
         if (this.isSimulated()) {
@@ -378,7 +378,7 @@ function Light() {
     /**
      *
      */
-    Light.prototype.positionDown = function () {
+    Jalousie.prototype.positionDown = function () {
         var promise;
 
         if (this.isSimulated()) {
@@ -395,7 +395,7 @@ function Light() {
     /**
      *
      */
-    Light.prototype.incrementRotation = function () {
+    Jalousie.prototype.incrementRotation = function () {
         var promise;
 
         promise = q();
@@ -407,7 +407,7 @@ function Light() {
     /**
      *
      */
-    Light.prototype.decrementRotation = function () {
+    Jalousie.prototype.decrementRotation = function () {
         var promise;
 
         promise = q();
