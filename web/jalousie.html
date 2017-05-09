@@ -15,15 +15,15 @@
                 </div>
                 <div class="flexGrow1 flexAlignTop marginLeft0_5">
                 <span class="lightPrimaryColor"
-                      style="font-size: 2.5em;">{{component._state.jalousiePosition | number:0}}</span>
+                      style="font-size: 2.5em;">{{component._state.position | number:0}}</span>
                     <span class="smallFont lightPrimaryColor">%</span>
                 </div>
                 <div class="circleButton marginLeft0_5" style="display: inline-block;"
-                     ng-click="panel.callActorService(component, 'incrementPosition')">
+                     ng-click="panel.callActorService(component, 'raisePosition')">
                     <i class="fa fa-angle-up"></i>
                 </div>
                 <div class="circleButton marginLeft0_5" style="display: inline-block;"
-                     ng-click="panel.callActorService(component, 'raisePosition')">
+                     ng-click="panel.callActorService(component, 'positionUp')">
                     <i class="fa fa-angle-double-up"></i>
                 </div>
             </div>
@@ -34,7 +34,7 @@
                 </div>
                 <div class="flexGrow1 flexAlignTop marginLeft0_5">
                 <span class="lightPrimaryColor"
-                      style="font-size: 2.5em;">{{component._state.jalousieRotation | number:0}}</span>
+                      style="font-size: 2.5em;">{{component._state.rotation | number:0}}</span>
                     <span class="smallFont lightPrimaryColor">&deg;</span>
                 </div>
                 <div class="circleButton marginLeft0_5" style="display: inline-block;"

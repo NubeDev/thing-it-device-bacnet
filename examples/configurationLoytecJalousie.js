@@ -23,7 +23,7 @@ module.exports = {
                         "positionModificationStopTime": 1000,
                         "rotationFeedbackObjectId": 63,
                         "rotationFeedbackObjectType": "AnalogValue",
-                        "rotationModificationObjectId": 0,
+                        "rotationModificationObjectId": 59,
                         "rotationModificationObjectType": "AnalogValue",
                     }
                 }

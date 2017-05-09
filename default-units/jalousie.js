@@ -155,7 +155,7 @@ function Jalousie() {
 
                         function notifyListeners(element, index, array) {
                             element(index);
-                        };
+                        }
 
                         this.internalListeners.forEach(notifyListeners);
 
