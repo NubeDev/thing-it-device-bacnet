@@ -55,29 +55,8 @@ module.exports = {
                 },
                 defaultValue: ""
             }, {
-                label: "Position Modification Increment Value",
-                id: "positionModificationIncrementValue",
-                type: {
-                    id: "integer"
-                },
-                defaultValue: ""
-            }, {
-                label: "Position Modification Decrement Value",
-                id: "positionModificationDecrementValue",
-                type: {
-                    id: "integer"
-                },
-                defaultValue: ""
-            }, {
-                label: "Position Modification Stop Value",
-                id: "positionModificationStopValue",
-                type: {
-                    id: "integer"
-                },
-                defaultValue: ""
-            }, {
-                label: "Position Modification Stop Time",
-                id: "positionModificationStopTime",
+                label: "Position Step Size",
+                id: "positionStepSize",
                 type: {
                     id: "integer"
                 },
@@ -108,6 +87,55 @@ module.exports = {
                 id: "rotationModificationObjectType",
                 type: {
                     id: "string"
+                },
+                defaultValue: ""
+            }, {
+                label: "Rotation Up Value",
+                id: "rotationUpValue",
+                type: {
+                    id: "integer"
+                },
+                defaultValue: ""
+            }, {
+                label: "Rotation Down Value",
+                id: "rotationDownValue",
+                type: {
+                    id: "integer"
+                },
+                defaultValue: ""
+            }, {
+                label: "Rotation Step Size",
+                id: "rotationStepSize",
+                type: {
+                    id: "integer"
+                },
+                defaultValue: ""
+            }, {
+                label: "Action Object Id",
+                id: "actionObjectId",
+                type: {
+                    id: "integer"
+                },
+                defaultValue: ""
+            }, {
+                label: "Action Object Type",
+                id: "actionObjectType",
+                type: {
+                    id: "string"
+                },
+                defaultValue: ""
+            }, {
+                label: "Action Go Value",
+                id: "actionGoValue",
+                type: {
+                    id: "integer"
+                },
+                defaultValue: ""
+            }, {
+                label: "Action Stop Value",
+                id: "actionStopValue",
+                type: {
+                    id: "integer"
                 },
                 defaultValue: ""
             }
@@ -241,62 +269,7 @@ function Jalousie() {
             this.state = targetstate;
             this.publishStateChange();
         } else {
-            var deferred = q.defer();
-
-            if (this.state.position > targetstate.position) {
-                this.internalListeners.push(function (element) {
-                    if (this.state.position < targetstate.position) {
-                        this.setPositionModification(this.configuration.positionModificationStopValue);
-                        this.internalListeners.splice(element,1);
-                        deferred.resolve();
-                    }
-                }.bind(this));
-
-                this.setPositionModification(this.configuration.positionModificationDecrementValue).then(function () {
-                    setTimeout(function () {
-                        this.logError(this.state);
-                        deferred.reject('Desired target position ' + targetstate.position + ' not reached after 20s.');
-                    }.bind(this), 20000);
-                });
-            } else {
-                this.internalListeners.push(function (element) {
-                    if (this.state.position > targetstate.position) {
-                        this.setPositionModification(this.configuration.positionModificationStopValue);
-                        this.internalListeners.splice(element,1);
-                        deferred.resolve();
-                    }
-                }.bind(this));
-
-                this.setPositionModification(this.configuration.positionModificationIncrementValue).then(function () {
-                    setTimeout(function () {
-                        this.logError(this.state);
-                        deferred.reject('Desired target position ' + targetstate.position + ' not reached after 20s.');
-                    }.bind(this), 20000);
-                });
-            }
-
-            promise = deferred.promise;
-        }
-
-        return promise;
-    };
-
-    /**
-     *
-     */
-    Jalousie.prototype.update = function () {
-        var promise;
-
-        this.logDebug('Updating values...');
-
-        //        if (this.isSimulated()) {
-        //TODO remove
-        if (true) {
-            promise = q();
-            this.state.position = Math.round(Math.random() * 100);
-            this.state.rotation = 90 + Math.round(Math.random() * 80);
-            this.publishStateChange();
-        } else {
+            promise = this.setModification(targetstate.position, targetstate.rotation);
         }
 
         return promise;
@@ -306,12 +279,25 @@ function Jalousie() {
     /**
      *
      */
-    Jalousie.prototype.setPositionModification = function (modificationValue) {
-        this.logDebug('Modifying position', modificationValue);
-        return this.device.adapter.writeProperty(this.configuration.positionModificationObjectType,
-            this.configuration.positionModificationObjectId, 'presentValue', modificationValue, this.device.bacNetDevice)
-            .then(function (result) {
-                this.logDebug('Modified Position', modificationValue, result);
+    Jalousie.prototype.setModification = function (position, rotation) {
+        this.logDebug('Modifying position and rotation', position, rotation);
+        return q.all([
+            this.device.adapter.writeProperty(this.configuration.positionModificationObjectType,
+                this.configuration.positionModificationObjectId, 'presentValue', position, this.device.bacNetDevice)
+                .then(function (result) {
+                    this.logDebug('Modified Position', position, result);
+                }.bind(this)),
+            this.device.adapter.writeProperty(this.configuration.rotationModificationObjectType,
+                this.configuration.rotationModificationObjectId, 'presentValue', rotation, this.device.bacNetDevice)
+                .then(function (result) {
+                    this.logDebug('Modified Rotation', rotation, result);
+                }.bind(this))])
+            .then(function () {
+                return this.device.adapter.writeProperty(this.configuration.actionObjectType,
+                    this.configuration.actionObjectId, 'presentValue', this.configuration.actionGoValue, this.device.bacNetDevice)
+                    .then(function (result) {
+                        this.logDebug('Modified Action', this.configuration.actionGoValue, result);
+                    }.bind(this));
             }.bind(this));
     };
 
@@ -324,14 +310,13 @@ function Jalousie() {
 
         if (this.isSimulated()) {
             promise = q();
-            this.state.position = (this.state.position < 10 ? 0 : this.state.position - 10);
+            this.state.position = (this.state.position < this.configuration.positionStepSize ?
+                0 : this.state.position - this.configuration.positionStepSize);
             this.publishStateChange();
         } else {
-            promise = this.setPositionModification(this.configuration.positionModificationDecrementValue)
-                .delay(this.configuration.positionModificationStopTime)
-                .then(function (lastState) {
-                    return this.setPositionModification(this.configuration.positionModificationStopValue);
-                }.bind(this));
+            var targetPosition = this.state.position - this.configuration.positionStepSize;
+            this.logDebug("Target Position", targetPosition);
+            promise = this.setModification(targetPosition, this.configuration.rotationUpValue);
         }
 
         return promise;
@@ -345,14 +330,13 @@ function Jalousie() {
 
         if (this.isSimulated()) {
             promise = q();
-            this.state.position = (this.state.position > 90 ? 100 : this.state.position + 10);
+            this.state.position = (this.state.position > (100 - this.configuration.positionStepSize) ?
+                100 : this.state.position + this.configuration.positionStepSize);
             this.publishStateChange();
         } else {
-            promise = this.setPositionModification(this.configuration.positionModificationIncrementValue)
-                .delay(this.configuration.positionModificationStopTime)
-                .then(function (lastState) {
-                    return this.setPositionModification(this.configuration.positionModificationStopValue);
-                }.bind(this));
+            var targetPosition = this.state.position + this.configuration.positionStepSize;
+            this.logDebug("Target Position", targetPosition);
+            promise = this.setModification(targetPosition, this.configuration.rotationDownValue);
         }
 
         return promise;
@@ -369,7 +353,7 @@ function Jalousie() {
             this.state.position = 0;
             this.publishStateChange();
         } else {
-            promise = this.setPositionModification(this.configuration.positionModificationDecrementValue);
+            promise = this.setModification(0, this.configuration.rotationUpValue);
         }
 
         return promise;
@@ -386,7 +370,7 @@ function Jalousie() {
             this.state.position = 100;
             this.publishStateChange();
         } else {
-            promise = this.setPositionModification(this.configuration.positionModificationIncrementValue);
+            promise = this.setModification(100, this.configuration.rotationDownValue);
         }
 
         return promise;
@@ -398,9 +382,16 @@ function Jalousie() {
     Jalousie.prototype.incrementRotation = function () {
         var promise;
 
-        promise = q();
-        this.state.rotation = (this.state.rotation > 160 ? 170 : this.state.rotation + 10);
-        this.publishStateChange();
+        if (this.isSimulated()) {
+            promise = q();
+            this.state.rotation = (this.state.rotation > 160 ? 170 : this.state.rotation + 10);
+            this.publishStateChange();
+        } else {
+            var targetRotation = this.state.rotation + this.configuration.rotationStepSize;
+            this.logDebug("Target Rotation", targetRotation);
+            promise = this.setModification(this.state.position, targetRotation);
+        }
+
         return promise;
     };
 
@@ -410,10 +401,17 @@ function Jalousie() {
     Jalousie.prototype.decrementRotation = function () {
         var promise;
 
-        promise = q();
-        this.state.rotation = (this.state.rotation < 100 ? 90 : this.state.rotation - 10);
-        this.publishStateChange();
+        if (this.isSimulated()) {
+            promise = q();
+            this.state.rotation = (this.state.rotation < 100 ? 90 : this.state.rotation - 10);
+            this.publishStateChange();
+        } else {
+            var targetRotation = this.state.rotation - this.configuration.rotationStepSize;
+            this.logDebug("Target Rotation", targetRotation);
+            promise = this.setModification(this.state.position, targetRotation);
+        }
+
         return promise;
     };
 
-};
+}
