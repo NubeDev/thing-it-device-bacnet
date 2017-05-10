@@ -47,11 +47,11 @@ by bundling a series of individual BACnet objects into a logical context.
 
 ### BACnet Object
 
-<p align="center"><a href="./documentation/images/bacnet-object-configuration.png"><img src="./documentation/images/bacnet-object-configuration.png" width="50%" height="50%"></a></p>
+<p align="center"><a href="./documentation/images/bacnet-object-configuration.png"><img src="./documentation/images/bacnet-object-configuration.png" width="75%" height="75%"></a></p>
 
 ### Higher Level BACnet Device
 
-<p align="center"><a href="./documentation/images/bacnet-complex-device-configuration.png"><img src="./documentation/images/bacnet-complex-device-configuration.png" width="50%" height="50%"></a></p>
+<p align="center"><a href="./documentation/images/bacnet-complex-device-configuration.png"><img src="./documentation/images/bacnet-complex-device-configuration.png" width="75%" height="75%"></a></p>
 
 ### Dashboard
 
@@ -64,7 +64,7 @@ can be combined with [thing-it-device-weather](https://github.com/klausberberich
 * historic outside temperature
 * historic outside humidity
 
-<p align="center"><a href="./documentation/images/bacnet-data-visualization.png"><img src="./documentation/images/bacnet-data-visualization.png" width="50%" height="50%"></a></p>
+<p align="center"><a href="./documentation/images/bacnet-data-visualization.png"><img src="./documentation/images/bacnet-data-visualization.png" width="75%" height="75%"></a></p>
  
 ### Non-Developers
 
