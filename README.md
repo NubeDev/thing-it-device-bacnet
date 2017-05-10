@@ -64,7 +64,7 @@ can be combined with [thing-it-device-weather](https://github.com/klausberberich
 * historic outside temperature
 * historic outside humidity
 
-<p align="center"><a href="./documentation/images/bacnet-data-visualization.png"><img src="./documentation/images/bacnet-data-visualization.png" width="75%" height="75%"></a></p>
+<p align="center"><a href="./documentation/images/bacnet-data-visualization.png"><img src="./documentation/images/bacnet-data-visualization.png" width="100%" height="100%"></a></p>
  
 ### Non-Developers
 
