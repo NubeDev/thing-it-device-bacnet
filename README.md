@@ -45,11 +45,15 @@ by bundling a series of individual BACnet objects into a logical context.
 
 ## User Inteface Examples
 
-### BACnet Object
+## Mobile UI
+
+<p align="center"><a href="./documentation/images/mobile-ui.png"><img src="./documentation/images/mobile-ui.png" width="70%" height="70%"></a></p>
+
+### BACnet Object Configuration
 
 <p align="center"><a href="./documentation/images/bacnet-object-configuration.png"><img src="./documentation/images/bacnet-object-configuration.png" width="75%" height="75%"></a></p>
 
-### Higher Level BACnet Device
+### Higher Level BACnet Device Configuration
 
 <p align="center"><a href="./documentation/images/bacnet-complex-device-configuration.png"><img src="./documentation/images/bacnet-complex-device-configuration.png" width="75%" height="75%"></a></p>
 
@@ -100,12 +104,6 @@ If your BACnet devices and your [thing-it] Gateway are not in the same network, 
 and/or hardware may be required to ensure broadcasts from the BACnet devices can be seen by the [thing-it] Gateway and 
 vice versa. 
 
-
-## Mobile UI
-
-The following screenshot shows the Node Page of the [sample configuration]("./examples.configuration"):
-
-<p align="center"><a href="./documentation/images/mobile-ui.png"><img src="./documentation/images/mobile-ui.png" width="70%" height="70%"></a></p>
 
 ## Where to go from here ...
 
