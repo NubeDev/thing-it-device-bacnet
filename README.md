@@ -104,6 +104,17 @@ If your BACnet devices and your [thing-it] Gateway are not in the same network, 
 and/or hardware may be required to ensure broadcasts from the BACnet devices can be seen by the [thing-it] Gateway and 
 vice versa. 
 
+### Configuring Devices and Actors
+
+Use the configuration portal at [www.thing-it.com](http://www.thing-it.com) to create a BACnet device. You need to know
+ either
+
+* the IP address or
+* the BACnet device id 
+
+of the device to connect with it. Once your device is connected, you can add actors for BACnet objects or
+ complex higher level objects in the configuration as shown in the UI examples above.
+
 
 ## Where to go from here ...
 
