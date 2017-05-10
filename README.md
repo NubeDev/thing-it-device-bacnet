@@ -5,12 +5,24 @@
 
 [thing-it-node] Device Plugin for BACnet networks to control BACnet devices.
 
-This allows you to 
+The BACnet Device Plugin is operational for the scope described here which represents a subset of the full 
+BACnet protocol plus [thing-it] specific usages, such as higher level compelx devices. Contact us
+if you're interested in connecting [thing-it] to your BACnet environment and / or supporting additional 
+BACnet features, devices, or objects.
 
-* control BACnet devices over the Internet,
+## Description
+
+This Device Plugin allows you to
+
+* show and modify values of any BACnet object of a BACnet device via the [thing-it] Mobile App and 
+the [thing-it] portal at [www.thing-it.com](http://www.thing-it.com),
+* visualize historic data of any connected BACnet object,
+* combine data and controls from any other [thing-it] plugin, and
 * define complex scenes, storyboards and timer controlled execution 
 
-by means of [thing-it-node](https://github.com/marcgille/thing-it-node) and [thing-it.com](http://www.thing-it.com).
+by connecting an arbitrary number of BACnet devices to a [thing-it-node](https://github.com/marcgille/thing-it-node) 
+ on the same network. [thing-it-node](https://github.com/marcgille/thing-it-node) can be run
+ on a variety of computers incuding Raspberry Pis and Linux server.
 
 Hereby, this plugin represents basic BACnet Objects such as
 
@@ -18,57 +30,76 @@ Hereby, this plugin represents basic BACnet Objects such as
 * **Analog Value**
 * **Binary Input**
 * **Binary Value**
+* **Multi State Input**
+* **Multi State Value**
 
 connected to a generic **BACnet Device** and communication to those via UDP/IP.
 
-Those who are interested in imlementing a specific, non-generic BACnet Device e.g. a thermostat with specific state, services and UI from a [thing-it-node] perspective
-can still use the **BacNetAdapter** class under **lib** in this package to easily implement communication with the BACnet network via IP/UDP.
+The plugin also supports specific higher level devices, such as
 
-NOTE: This Device Plugin is in an early development stage.
+* **Thermostat**
+* **Light**
+* **Jalousie**
+
+by bundling a series of individual BACnet objects into a logical context.
+
+## User Inteface Examples
+
+### BACnet Object
+
+<p align="center"><a href="./documentation/images/bacnet-object-configuration.png"><img src="./documentation/images/bacnet-object-configuration.png" width="50%" height="50%"></a></p>
+
+### Higher Level BACnet Device
+
+<p align="center"><a href="./documentation/images/bacnet-complex-device-configuration.png"><img src="./documentation/images/bacnet-complex-device-configuration.png" width="50%" height="50%"></a></p>
+
+### Dashboard
+
+In a dashboard data from a BACnet device, such as  
+* a room's temperature setpoing history
+* the BACnet device's CPU load history and current value
+* the BACnet device's internal temperature history and current value
+
+can be combined with [thing-it-device-weather](https://github.com/klausberberich/thing-it-device-weather) data, such as 
+* historic outside temperature
+* historic outside humidity
+
+<p align="center"><a href="./documentation/images/bacnet-data-visualization.png"><img src="./documentation/images/bacnet-data-visualization.png" width="50%" height="50%"></a></p>
+ 
+### Non-Developers
+
+Contact us if you're interested in connecting to your BACnet environment via mobile or web. 
+
+### Developers
+
+Those who are interested in implementing their own specific higher level BACnet Device e.g. a thermostat with specific 
+state, services and UI from a [thing-it-node] perspective can still use the **BacNetAdapter** class under **lib** in this 
+package to easily implement communication with the BACnet network via IP/UDP.
+
+Contact us if you're interested in helping us support additional BACnet features, devices, or objects.
 
 ## Installation
 
-### Installation of NodeJS and [thing-it-node]
+### Installation [thing-it-node]
 
-First, install [nodejs](https://nodejs.org/en/download/) on your computer (e.g. your PC or your Raspberry Pi).
+Follow the installation steps at [thing-it-node](https://github.com/marcgille/thing-it-node) to turn your computer 
+(e.g. your PC, your Raspberry Pi, or a Linux server) into a [thing-it] Gateway. Installing [thing-it-node](https://github.com/marcgille/thing-it-node)
+automatically also installs the BACnet plugin.
 
-Then install **[thing-it-node]** via
-
-```
-npm install -g thing-it-node
-```
+After installation follow the instructions to pair your [thing-it] Gateway with 
+[www.thing-it.com](http://www.thing-it.com) and to start the **[thing-it-node]**. Use the configuration portal at 
+[www.thing-it.com](http://www.thing-it.com) to confirm your [thing-it] Gateway is properly connected. 
 
 ### Connectivity to BACnet
 
-Make sure that the computer running **[thing-it-node]** is connected to the network where your BACnet Devices and Objects can be reachned via IP and obtain
-the BACnet IDs for the Devices and Objects you want to represent in **[thing-it-node]**.
+Make sure that the computer running **[thing-it-node]** (your [thing-it] Gateway) can connect your 
+BACnet devices via an IP connection. As the BACnet protocol uses UPD broadcasts for an initial WhoIs / IAm handshake
+your BACnet devices and your [thing-it] Gateway should be on the same network to simplify the setup. 
 
-### Initialization and Start of [thing-it-node] 
+If your BACnet devices and your [thing-it] Gateway are not in the same network, additional network configuration 
+and/or hardware may be required to ensure broadcasts from the BACnet devices can be seen by the [thing-it] Gateway and 
+vice versa. 
 
-The **[thing-it-device-bacnet]** Plugin is installed with **[thing-it-node]**, hence there is no need to install it separately.
-
-The Plugin supports Autodiscovery, hence you only have to create a directory in which you intend to run the configuration, e.g.
- 
-```
-mkdir ~/bacnet-test
-cd ~/bacnet-test
-```
-
-and invoke
-
-```
-tin init
-```
-
-and then start **[thing-it-node]** via
-
-```
-tin run
-```
-
-Install the **thing-it Mobile App** from the Apple Appstore or Google Play and set it up to connect to **[thing-it-node]** 
-locally as described [here](https://thing-it.com/thing-it/#/documentationPanel/mobileClient/connectionModes) or just connect your browser under 
-[http://localhost:3001](http://localhost:3001).
 
 ## Mobile UI
 
