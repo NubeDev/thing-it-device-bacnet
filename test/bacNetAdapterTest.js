@@ -1,13 +1,18 @@
 var BacNetAdapter = require('../lib/bacNetAdapter');
 
 var ip = '192.168.5.102';
-var firstTestDevice = BacNetAdapter.createDevice(ip + ':' + BacNetAdapter.BACNET_DEFAULT_PORT, ip, BacNetAdapter.BACNET_DEFAULT_PORT);
+var deviceId = 1;
+var firstTestDevice = BacNetAdapter.createDevice(ip + ':' + BacNetAdapter.BACNET_DEFAULT_PORT, ip,
+    BacNetAdapter.BACNET_DEFAULT_PORT, deviceId, undefined, {objectId: deviceId});
+
 ip = '192.168.5.192';
-var secondTestDevice = BacNetAdapter.createDevice(ip + ':' + BacNetAdapter.BACNET_DEFAULT_PORT, ip, BacNetAdapter.BACNET_DEFAULT_PORT);
+deviceId = 101;
+var secondTestDevice = BacNetAdapter.createDevice(ip + ':' + BacNetAdapter.BACNET_DEFAULT_PORT, ip,
+    BacNetAdapter.BACNET_DEFAULT_PORT, deviceId, undefined, {objectId: deviceId});
+
 var bacNetDeviceAdapter = BacNetAdapter.create();
 
 bacNetDeviceAdapter.initialize(firstTestDevice)
-//bacNetDeviceAdapter.initialize('192.168.0.185')
     .then(function (device) {
             firstTestDevice = device;
             console.log('!!!!!!! First Device successfully initialized.');

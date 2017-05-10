@@ -28,10 +28,13 @@ module.exports = {
             "id": "bacnet1",
             "label": "PRIVA",
             "configuration": {
-                //"simulated": true,
                 "ipAddress": "192.168.5.192",
-                "bacNetId": "101",
-                "deviceId": "101"
+                "ipMatchRequired": true,
+                "bacNetId": "1",
+                "deviceId": 101,
+                "deviceIdMatchRequired": true,
+                "vendorId": 0,
+                "vendorIdMatchRequired": false,
             }
         }],
     "services": [],

@@ -38,11 +38,13 @@ module.exports = {
             "id": "BACnet",
             "label": "BACnet",
             "configuration": {
-                //"simulated": true,
-                //"ipAddress": "192.168.5.102",
                 "ipAddress": "192.168.0.185",
+                "ipMatchRequired": true,
                 "bacNetId": "1",
-                "deviceId": "1"
+                "deviceId": 1,
+                "deviceIdMatchRequired": true,
+                "vendorId": 179,
+                "vendorIdMatchRequired": false,
             }
         }],
     "services": [],
