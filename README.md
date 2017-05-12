@@ -20,8 +20,8 @@ the [thing-it] portal at [www.thing-it.com](http://www.thing-it.com),
 * combine data and controls from any other [thing-it] plugin, and
 * define complex scenes, storyboards and timer controlled execution 
 
-by connecting an arbitrary number of BACnet devices to a [thing-it-node](https://github.com/marcgille/thing-it-node) 
- on the same network. [thing-it-node](https://github.com/marcgille/thing-it-node) can be run
+by connecting an arbitrary number of BACnet devices to a [thing-it-node](https://raw.githubusercontent.com/marcgille/thing-it-node) 
+ on the same network. [thing-it-node](https://raw.githubusercontent.com/marcgille/thing-it-node) can be run
  on a variety of computers incuding Raspberry Pis and Linux server.
 
 Hereby, this plugin represents basic BACnet Objects such as
@@ -47,15 +47,15 @@ by bundling a series of individual BACnet objects into a logical context.
 
 ## Mobile UI
 
-<p align="center"><a href="https://github.com/marcgille/thing-it-device-bacnet/blob/master/documentation/images/mobile-ui.png"><img src="https://github.com/marcgille/thing-it-device-bacnet/blob/master/documentation/images/mobile-ui.png" width="70%" height="70%"></a></p>
+<p align="center"><a href="https://raw.githubusercontent.com/marcgille/thing-it-device-bacnet/blob/master/documentation/images/mobile-ui.png"><img src="https://raw.githubusercontent.com/marcgille/thing-it-device-bacnet/blob/master/documentation/images/mobile-ui.png" width="70%" height="70%"></a></p>
 
 ### BACnet Object Configuration
 
-<p align="center"><a href="https://github.com/marcgille/thing-it-device-bacnet/blob/master/documentation/images/bacnet-object-configuration.png"><img src="https://github.com/marcgille/thing-it-device-bacnet/blob/master/documentation/images/bacnet-object-configuration.png" width="75%" height="75%"></a></p>
+<p align="center"><a href="https://raw.githubusercontent.com/marcgille/thing-it-device-bacnet/blob/master/documentation/images/bacnet-object-configuration.png"><img src="https://raw.githubusercontent.com/marcgille/thing-it-device-bacnet/blob/master/documentation/images/bacnet-object-configuration.png" width="75%" height="75%"></a></p>
 
 ### Higher Level BACnet Device Configuration
 
-<p align="center"><a href="https://github.com/marcgille/thing-it-device-bacnet/blob/master/documentation/images/bacnet-complex-device-configuration.png"><img src="https://github.com/marcgille/thing-it-device-bacnet/blob/master/documentation/images/bacnet-complex-device-configuration.png" width="75%" height="75%"></a></p>
+<p align="center"><a href="https://raw.githubusercontent.com/marcgille/thing-it-device-bacnet/blob/master/documentation/images/bacnet-complex-device-configuration.png"><img src="https://raw.githubusercontent.com/marcgille/thing-it-device-bacnet/blob/master/documentation/images/bacnet-complex-device-configuration.png" width="75%" height="75%"></a></p>
 
 ### Dashboard
 
@@ -68,7 +68,7 @@ can be combined with [thing-it-device-weather](https://github.com/klausberberich
 * historic outside temperature
 * historic outside humidity
 
-<p align="center"><a href="https://github.com/marcgille/thing-it-device-bacnet/blob/master/documentation/images/bacnet-data-visualization.png"><img src="https://github.com/marcgille/thing-it-device-bacnet/blob/master/documentation/images/bacnet-data-visualization.png" width="100%" height="100%"></a></p>
+<p align="center"><a href="https://raw.githubusercontent.com/marcgille/thing-it-device-bacnet/blob/master/documentation/images/bacnet-data-visualization.png"><img src="https://raw.githubusercontent.com/marcgille/thing-it-device-bacnet/blob/master/documentation/images/bacnet-data-visualization.png" width="100%" height="100%"></a></p>
  
 ### Non-Developers
 
@@ -86,8 +86,8 @@ Contact us if you're interested in helping us support additional BACnet features
 
 ### Installation [thing-it-node]
 
-Follow the installation steps at [thing-it-node](https://github.com/marcgille/thing-it-node) to turn your computer 
-(e.g. your PC, your Raspberry Pi, or a Linux server) into a [thing-it] Gateway. Installing [thing-it-node](https://github.com/marcgille/thing-it-node)
+Follow the installation steps at [thing-it-node](https://raw.githubusercontent.com/marcgille/thing-it-node) to turn your computer 
+(e.g. your PC, your Raspberry Pi, or a Linux server) into a [thing-it] Gateway. Installing [thing-it-node](https://raw.githubusercontent.com/marcgille/thing-it-node)
 automatically also installs the BACnet plugin.
 
 After installation follow the instructions to pair your [thing-it] Gateway with 
@@ -129,4 +129,4 @@ After completing the above, you may be interested in
 * Use [thing-it.com](https://www.thing-it.com) to safely connect your Node Box from everywhere, manage complex configurations, store and analyze historical data 
 and offer your configurations to others on the **[thing-it] Mesh Market**.
 * Explore other Device Plugins like [Texas Instruments Sensor Tag](https://www.npmjs.com/package/thing-it-device-ti-sensortag), [Plugwise Smart Switches](https://www.npmjs.com/package/thing-it-device-plugwise) and many more. For a full set of 
-Device Plugins search for **thing-it-device** on [npm](https://www.npmjs.com/). Or [write your own Plugins](https://github.com/marcgille/thing-it-node/wiki/Plugin-Development-Concepts).
+Device Plugins search for **thing-it-device** on [npm](https://www.npmjs.com/). Or [write your own Plugins](https://raw.githubusercontent.com/marcgille/thing-it-node/wiki/Plugin-Development-Concepts).
