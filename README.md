@@ -43,19 +43,19 @@ The plugin also supports specific higher level devices, such as
 
 by bundling a series of individual BACnet objects into a logical context.
 
-## User Inteface Examples
+## User Interface Examples
 
 ## Mobile UI
 
-<p align="center"><a href="./documentation/images/mobile-ui.png"><img src="./documentation/images/mobile-ui.png" width="70%" height="70%"></a></p>
+<p align="center"><a href="https://github.com/marcgille/thing-it-device-bacnet/blob/master/documentation/images/mobile-ui.png"><img src="https://github.com/marcgille/thing-it-device-bacnet/blob/master/documentation/images/mobile-ui.png" width="70%" height="70%"></a></p>
 
 ### BACnet Object Configuration
 
-<p align="center"><a href="./documentation/images/bacnet-object-configuration.png"><img src="./documentation/images/bacnet-object-configuration.png" width="75%" height="75%"></a></p>
+<p align="center"><a href="https://github.com/marcgille/thing-it-device-bacnet/blob/master/documentation/images/bacnet-object-configuration.png"><img src="https://github.com/marcgille/thing-it-device-bacnet/blob/master/documentation/images/bacnet-object-configuration.png" width="75%" height="75%"></a></p>
 
 ### Higher Level BACnet Device Configuration
 
-<p align="center"><a href="./documentation/images/bacnet-complex-device-configuration.png"><img src="./documentation/images/bacnet-complex-device-configuration.png" width="75%" height="75%"></a></p>
+<p align="center"><a href="https://github.com/marcgille/thing-it-device-bacnet/blob/master/documentation/images/bacnet-complex-device-configuration.png"><img src="https://github.com/marcgille/thing-it-device-bacnet/blob/master/documentation/images/bacnet-complex-device-configuration.png" width="75%" height="75%"></a></p>
 
 ### Dashboard
 
@@ -68,7 +68,7 @@ can be combined with [thing-it-device-weather](https://github.com/klausberberich
 * historic outside temperature
 * historic outside humidity
 
-<p align="center"><a href="./documentation/images/bacnet-data-visualization.png"><img src="./documentation/images/bacnet-data-visualization.png" width="100%" height="100%"></a></p>
+<p align="center"><a href="https://github.com/marcgille/thing-it-device-bacnet/blob/master/documentation/images/bacnet-data-visualization.png"><img src="https://github.com/marcgille/thing-it-device-bacnet/blob/master/documentation/images/bacnet-data-visualization.png" width="100%" height="100%"></a></p>
  
 ### Non-Developers
 
