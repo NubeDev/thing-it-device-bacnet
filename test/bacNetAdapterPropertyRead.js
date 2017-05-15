@@ -1,11 +1,13 @@
 'use strict';
 var BacNetAdapter = require('../lib/bacNetAdapter');
 
-var ip = '192.168.0.105';
-var deviceId = 1;
-var objectId = 3;
-var objectType = 'MultiStateValue';
-var propertyId = BacNetAdapter.BACNET_PROPERTY_KEYS.objectName;
+//var ip = '192.168.0.105'; 178.8.237.219
+var ip = '178.8.237.219';
+var deviceId = 12345;
+var objectId = 0;
+//var objectType = 'MultiStateValue';
+var objectType = 'AnalogValue';
+var propertyId = BacNetAdapter.BACNET_PROPERTY_KEYS.presentValue;
 var vendorId = 178;
 
 
@@ -14,6 +16,12 @@ var testDevice = BacNetAdapter.createDevice(ip + ':' + BacNetAdapter.BACNET_DEFA
 var bacNetDeviceAdapter = BacNetAdapter.create();
 
 bacNetDeviceAdapter.initialize(testDevice)
+/*
+    .then(function (device) {
+        console.log('Performing WhoIs confirmation.');
+        return this.adapter.confirmViaWhoIs(device);
+    }.bind(this))
+*/
     .then(function (device) {
         testDevice = device;
         console.log('!!!!!!! Device successfully initialized.');
@@ -32,6 +40,10 @@ bacNetDeviceAdapter.initialize(testDevice)
                 console.log('Error: ' + error);
             })
             .done(function () {
-                console.log('Done reading property.')
+                console.log('Done reading property.');
             });
-    });
+    })
+    .fail(function (error) {
+        console.log(error);
+    })
+    .done();
