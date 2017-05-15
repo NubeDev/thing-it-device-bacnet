@@ -25,8 +25,8 @@ module.exports = {
             "sensors": [],
             "services": [],
             "class": "Device",
-            "id": "bacnet1",
-            "label": "PRIVA",
+            "id": "BACnet",
+            "label": "BACnet",
             "configuration": {
                 "ipAddress": "192.168.5.192",
                 "ipMatchRequired": true,

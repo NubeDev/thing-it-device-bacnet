@@ -249,24 +249,63 @@ function BacNet() {
                             this.logDebug('Omitting WhoIs confirmation.');
                         }
 
-                        promise = intermediatePromise.then(function (bacNetDevice) {
-                            this.logInfo('Initialized BACnet device successfully.');
-                            this.logDebug('Device details: ', bacNetDevice);
+                        promise = intermediatePromise
+                            .then(function (bacNetDevice) {
+                                return q.all([
+                                    this.adapter.readProperty('Device',
+                                        this.configuration.deviceId, 'objectName', bacNetDevice)
+                                        .then(function (result) {
+                                            this.logDebug('Name retrieved: ' + result.propertyValue);
+                                            this.state.name = result.propertyValue;
+                                        }.bind(this)),
+                                    this.adapter.readProperty('Device',
+                                        this.configuration.deviceId, 'description', bacNetDevice)
+                                        .then(function (result) {
+                                            this.logDebug('Description retrieved: ' + result.propertyValue);
+                                            this.state.description = result.propertyValue;
+                                        }.bind(this)),
+                                    this.adapter.readProperty('Device',
+                                        this.configuration.deviceId, 'vendorName', bacNetDevice)
+                                        .then(function (result) {
+                                            this.logDebug('Vendor retrieved: ' + result.propertyValue);
+                                            this.state.vendor = result.propertyValue;
+                                        }.bind(this)),
+                                    this.adapter.readProperty('Device',
+                                        this.configuration.deviceId, 'modelName', bacNetDevice)
+                                        .then(function (result) {
+                                            this.logDebug('Model retrieved: ' + result.propertyValue);
+                                            this.state.model = result.propertyValue;
+                                        }.bind(this)),
+                                    this.adapter.readProperty('Device',
+                                        this.configuration.deviceId, 'applicationSoftwareVersion', bacNetDevice)
+                                        .then(function (result) {
+                                            this.logDebug('Software retrieved: ' + result.propertyValue);
+                                            this.state.software = result.propertyValue;
+                                        }.bind(this)),
+                                ]).then(function () {
+                                    this.logDebug('Device data retrieved.');
+                                    return q(bacNetDevice);
+                                }.bind(this));
+                            }.bind(this))
+                            .then(function (bacNetDevice) {
+                                this.logInfo('Initialized BACnet device successfully.');
 
-                            var newId = bacNetDevice.ip + ':' + bacNetDevice.port;
+                                var newId = bacNetDevice.ip + ':' + bacNetDevice.port;
 
-                            if (newId !== bacNetDevice.id) {
-                                if (bacNetDevice.id.indexOf('GENERATED_') > -1) {
-                                    this.logInfo('Device ID not configured, found at ' + newId);
-                                } else {
-                                    this.logInfo('Device configured with ' + bacNetDevice.id + ' found at ' + newId);
+                                if (newId !== bacNetDevice.id) {
+                                    if (bacNetDevice.id.indexOf('GENERATED_') > -1) {
+                                        this.logInfo('Device ID not configured, found at ' + newId);
+                                    } else {
+                                        this.logInfo('Device configured with ' + bacNetDevice.id + ' found at ' + newId);
+                                    }
+                                    bacNetDevice.id = newId;
                                 }
-                                bacNetDevice.id = newId;
-                            }
 
-                            this.bacNetDevice = bacNetDevice;
-                            this.state.initialized = true;
-                        }.bind(this));
+                                this.bacNetDevice = bacNetDevice;
+                                this.state.initialized = true;
+                                this.logDebug('BACnet Device details: ', bacNetDevice);
+                                this.logDebug('State: ', this.state);
+                            }.bind(this));
 
                     }.bind(this))
                     .fail(function (e) {

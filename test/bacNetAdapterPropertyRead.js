@@ -4,10 +4,10 @@ var BacNetAdapter = require('../lib/bacNetAdapter');
 //var ip = '192.168.0.105'; 178.8.237.219
 var ip = '178.8.237.219';
 var deviceId = 12345;
-var objectId = 0;
+var objectId = 12345;
 //var objectType = 'MultiStateValue';
-var objectType = 'AnalogValue';
-var propertyId = BacNetAdapter.BACNET_PROPERTY_KEYS.presentValue;
+var objectType = 'Device';
+var propertyId = BacNetAdapter.BACNET_PROPERTY_KEYS.objectName;
 var vendorId = 178;
 
 

@@ -17,7 +17,7 @@ module.exports = {
                 "url":"frankschubert.selfhost.eu",
                 "urlLookupRequired": true,
                 "bacNetId": "12345",
-                "deviceId": 12345,
+                "deviceId": "12345",
                 "deviceIdMatchRequired": true,
                 "vendorId": 0,
                 "vendorIdMatchRequired": false,
