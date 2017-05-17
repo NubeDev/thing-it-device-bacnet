@@ -4,7 +4,7 @@ describe('[thing-it] BACnet Device', function () {
     var testDriver;
 
     before(function () {
-        testDriver = require("thing-it-test").createTestDriver({logLevel: "error"});
+        testDriver = require("thing-it-test").createTestDriver({logLevel: "debug"});
 
         testDriver.registerDevicePlugin(__dirname + "/../bacNetDevice");
         //testDriver.registerUnitPlugin(__dirname + "/../default-units/binaryInput");

@@ -2,9 +2,9 @@
 var BacNetAdapter = require('../lib/bacNetAdapter');
 
 var ip = '192.168.0.105';
-var deviceId = 1;
-var objectId = 21;
-var objectType = 'MultiStateValue';
+var deviceId = 101;
+var objectId = 112;
+var objectType = 'AnalogValue';
 var propertyId = BacNetAdapter.BACNET_PROPERTY_KEYS.presentValue;
 
 
@@ -14,16 +14,26 @@ var bacNetDeviceAdapter = BacNetAdapter.create();
 
 bacNetDeviceAdapter.initialize(testDevice)
     .then(function (device) {
+        console.log('Performing WhoIs confirmation.');
+        return bacNetDeviceAdapter.confirmViaWhoIs(device);
+    }.bind(this))
+    .then(function (device) {
         testDevice = device;
         console.log('!!!!!!! Device successfully initialized.');
+        var newId = testDevice.ip + ':' + testDevice.port;
 
-        return bacNetDeviceAdapter.writeProperty(objectType, objectId, propertyId, 4, device)
+        if (newId !== testDevice.id) {
+            console.log('Id change from ' + testDevice.id + ' to ' + newId);
+            testDevice.id = newId;
+        }
+
+        return bacNetDeviceAdapter.writeProperty(objectType, objectId, 'presentValue', 20, device)
             .then(function (result) {
                 console.log(result);
             })
-            .delay(1000)
+            .delay(10000)
             .then(function (){
-                return bacNetDeviceAdapter.writeProperty(objectType, objectId, propertyId, 6, device);
+                return bacNetDeviceAdapter.writeProperty(objectType, objectId, 'presentValue', 80, device);
             })
             .then(function (result) {
                 console.log(result);
@@ -32,6 +42,6 @@ bacNetDeviceAdapter.initialize(testDevice)
                 console.log('Error: ' + error);
             })
             .done(function () {
-                console.log('Done reading property.')
+                console.log('Done writing property.');
             });
     });

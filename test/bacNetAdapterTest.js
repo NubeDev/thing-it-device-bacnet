@@ -1,7 +1,7 @@
 var BacNetAdapter = require('../lib/bacNetAdapter');
 
 //var ip = '192.168.5.102';
-var ip = '178.8.237.219';
+var ip = '188.109.27.21';
 var deviceId = 12345;
 var firstTestDevice = BacNetAdapter.createDevice(ip + ':' + BacNetAdapter.BACNET_DEFAULT_PORT, ip,
     BacNetAdapter.BACNET_DEFAULT_PORT, deviceId, undefined, {objectId: deviceId});
@@ -71,7 +71,7 @@ bacNetDeviceAdapter.initialize(firstTestDevice)
 
             //Example setting the Ventil Maximum Regelbereich
             var thisObjectId = 0;
-            var thisValue = 5;
+            var thisValue = 75;
 
             bacNetDeviceAdapter.subscribeCOV('AnalogValue', thisObjectId, firstTestDevice, function (a) {
                 console.log('!!!!!!! Change of Value: "'

@@ -3,11 +3,11 @@ var BacNetAdapter = require('../lib/bacNetAdapter');
 
 //var ip = '192.168.0.105'; 178.8.237.219
 var ip = '178.8.237.219';
-var deviceId = 12345;
-var objectId = 12345;
+var deviceId = 101;
+var objectId = 112;
 //var objectType = 'MultiStateValue';
-var objectType = 'Device';
-var propertyId = BacNetAdapter.BACNET_PROPERTY_KEYS.objectName;
+var objectType = 'AnalogValue';
+var propertyId = BacNetAdapter.BACNET_PROPERTY_KEYS.presentValue;
 var vendorId = 178;
 
 
@@ -16,12 +16,10 @@ var testDevice = BacNetAdapter.createDevice(ip + ':' + BacNetAdapter.BACNET_DEFA
 var bacNetDeviceAdapter = BacNetAdapter.create();
 
 bacNetDeviceAdapter.initialize(testDevice)
-/*
     .then(function (device) {
         console.log('Performing WhoIs confirmation.');
-        return this.adapter.confirmViaWhoIs(device);
+        return bacNetDeviceAdapter.confirmViaWhoIs(device);
     }.bind(this))
-*/
     .then(function (device) {
         testDevice = device;
         console.log('!!!!!!! Device successfully initialized.');
